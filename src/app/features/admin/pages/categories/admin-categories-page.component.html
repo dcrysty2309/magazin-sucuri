@@ -1,0 +1,35 @@
+<section class="admin-page">
+  <div class="admin-page__header">
+    <p class="admin-page__eyebrow">Admin</p>
+    <h1>Categorii</h1>
+    <p>Organizeaza catalogul pe familii de produse.</p>
+  </div>
+
+  <div class="admin-grid">
+    <form class="admin-card admin-form" [formGroup]="form" novalidate (ngSubmit)="submit()">
+      <h2>Categorie noua</h2>
+      @if (serverError()) {
+        <p class="admin-form__error">{{ serverError() }}</p>
+      }
+      <label><span>Nume</span><input formControlName="name" type="text" /></label>
+      <label><span>Slug</span><input formControlName="slug" type="text" /></label>
+      <label><span>Descriere</span><textarea formControlName="description" rows="4"></textarea></label>
+      <button type="submit">Adauga categorie</button>
+    </form>
+
+    <div class="admin-card">
+      <h2>Categorii existente</h2>
+      <div class="admin-list">
+        @for (category of categories(); track category.id) {
+          <div class="admin-list__row">
+            <div>
+              <strong>{{ category.name }}</strong>
+              <p>{{ category.slug }}</p>
+            </div>
+            <p>{{ category.description }}</p>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+</section>

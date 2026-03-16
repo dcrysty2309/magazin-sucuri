@@ -1,0 +1,95 @@
+<section class="auth-register">
+  <div class="auth-register__intro">
+    <p class="auth-register__eyebrow">Cont nou</p>
+    <h1>Creeaza contul tau</h1>
+    <p class="auth-register__lead">
+      Salveaza adresele si finalizeaza comenzile mai usor, de fiecare data.
+    </p>
+  </div>
+
+  <form [formGroup]="form" class="auth-register__panel" novalidate (ngSubmit)="submit()">
+    @if (serverError()) {
+      <p class="auth-error auth-feedback auth-feedback--top">{{ serverError() }}</p>
+    }
+
+    @if (serverMessage()) {
+      <p class="auth-success auth-feedback auth-feedback--top">{{ serverMessage() }}</p>
+    }
+
+    <div class="auth-register__grid">
+      <label class="auth-field">
+        <span class="auth-field__label">Prenume</span>
+        <span class="auth-field__control">
+          <input [class.is-invalid]="form.controls.firstName.touched && form.controls.firstName.invalid" formControlName="firstName" placeholder="Catalin" type="text" />
+          @if (form.controls.firstName.touched && form.controls.firstName.invalid) {
+            <small class="auth-field__error-text">Prenumele este obligatoriu.</small>
+          }
+        </span>
+      </label>
+
+      <label class="auth-field">
+        <span class="auth-field__label">Nume</span>
+        <span class="auth-field__control">
+          <input [class.is-invalid]="form.controls.lastName.touched && form.controls.lastName.invalid" formControlName="lastName" placeholder="Popescu" type="text" />
+          @if (form.controls.lastName.touched && form.controls.lastName.invalid) {
+            <small class="auth-field__error-text">Numele este obligatoriu.</small>
+          }
+        </span>
+      </label>
+
+      <label class="auth-field">
+        <span class="auth-field__label">Email</span>
+        <span class="auth-field__control">
+          <input [class.is-invalid]="form.controls.email.touched && form.controls.email.invalid" formControlName="email" placeholder="nume@exemplu.ro" type="email" />
+          @if (form.controls.email.touched && form.controls.email.invalid) {
+            <small class="auth-field__error-text">Introdu o adresa de email valida.</small>
+          }
+        </span>
+      </label>
+
+      <label class="auth-field">
+        <span class="auth-field__label">Telefon</span>
+        <span class="auth-field__control">
+          <input [class.is-invalid]="form.controls.phone.touched && form.controls.phone.invalid" formControlName="phone" placeholder="07xxxxxxxx" type="tel" />
+          @if (form.controls.phone.touched && form.controls.phone.invalid) {
+            <small class="auth-field__error-text">Numarul de telefon este obligatoriu.</small>
+          }
+        </span>
+      </label>
+
+      <label class="auth-field">
+        <span class="auth-field__label">Parola</span>
+        <span class="auth-field__control">
+          <input [class.is-invalid]="form.controls.password.touched && form.controls.password.invalid" formControlName="password" placeholder="Minim 8 caractere" type="password" />
+          @if (form.controls.password.touched && form.controls.password.invalid) {
+            <small class="auth-field__error-text">Parola trebuie sa aiba minimum 8 caractere.</small>
+          }
+        </span>
+      </label>
+
+      <label class="auth-field">
+        <span class="auth-field__label">Confirma parola</span>
+        <span class="auth-field__control">
+          <input [class.is-invalid]="(form.controls.confirmPassword.touched && form.controls.confirmPassword.invalid) || (form.touched && form.hasError('passwordMismatch'))" formControlName="confirmPassword" placeholder="Reintrodu parola" type="password" />
+          @if ((form.controls.confirmPassword.touched && form.controls.confirmPassword.invalid) || (form.touched && form.hasError('passwordMismatch'))) {
+            <small class="auth-field__error-text">Parolele trebuie sa coincida.</small>
+          }
+        </span>
+      </label>
+    </div>
+
+    <label class="auth-check">
+      <input formControlName="terms" type="checkbox" />
+      <span>Accept termenii, politica de confidentialitate si conditiile de folosire.</span>
+    </label>
+
+    <button class="auth-button" type="submit">
+      {{ loading() ? 'Se creeaza contul...' : 'Creeaza cont' }}
+    </button>
+  </form>
+
+  <div class="auth-register__switch">
+    <span>Ai deja cont?</span>
+    <a routerLink="/auth/login">Intra in cont</a>
+  </div>
+</section>

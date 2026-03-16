@@ -1,0 +1,48 @@
+<section class="admin-page">
+  <div class="admin-page__header">
+    <p class="admin-page__eyebrow">Admin</p>
+    <h1>Dashboard</h1>
+    <p>O vedere rapida asupra comenzilor, clientilor si sanatatii magazinului.</p>
+  </div>
+
+  @if (serverError()) {
+    <div class="admin-card">
+      <p>{{ serverError() }}</p>
+    </div>
+  } @else {
+    <div class="admin-stats">
+      @for (stat of stats(); track stat.label) {
+        <article class="admin-card admin-stat">
+          <span>{{ stat.label }}</span>
+          <strong>{{ stat.value }}</strong>
+          <small>{{ stat.detail }}</small>
+        </article>
+      }
+    </div>
+
+    <div class="admin-card">
+      <h2>Comenzi recente</h2>
+      @if (loading()) {
+        <p>Se incarca...</p>
+      } @else if (!recentOrders().length) {
+        <p>Nu exista comenzi inca.</p>
+      } @else {
+        <div class="admin-list">
+          @for (order of recentOrders(); track order.code) {
+            <div class="admin-list__row">
+              <div>
+                <strong>{{ order.code }}</strong>
+                <p>{{ order.customerName }}</p>
+              </div>
+              <div>
+                <span>{{ order.status }}</span>
+                <strong>{{ order.total }} Lei</strong>
+                <p>{{ formatDate(order.createdAt) }}</p>
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  }
+</section>

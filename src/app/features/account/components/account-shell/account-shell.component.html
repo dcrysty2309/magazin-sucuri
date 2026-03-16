@@ -1,0 +1,34 @@
+<section class="account-shell">
+  <aside class="account-shell__sidebar">
+    <div class="account-shell__profile">
+      <span>{{ auth.initials() }}</span>
+      <strong>{{ auth.displayName() }}</strong>
+      <small>{{ auth.user()?.email }}</small>
+    </div>
+
+    <nav class="account-shell__nav" aria-label="Navigatie cont">
+      <a routerLink="/account/profil" routerLinkActive="is-active">Dashboard</a>
+      <a routerLink="/account/comenzi" routerLinkActive="is-active">Comenzile mele</a>
+      <a routerLink="/account/adrese" routerLinkActive="is-active">Adrese</a>
+      <a routerLink="/produse">Magazin</a>
+    </nav>
+
+    <button type="button" class="account-shell__logout" (click)="logout()">Deconectare</button>
+  </aside>
+
+  <div class="account-shell__content">
+    <header class="account-shell__header">
+      <div>
+        <p class="account-shell__eyebrow">Cont client</p>
+        <h1>{{ title() }}</h1>
+        @if (description()) {
+          <p>{{ description() }}</p>
+        }
+      </div>
+    </header>
+
+    <div class="account-shell__body">
+      <ng-content />
+    </div>
+  </div>
+</section>

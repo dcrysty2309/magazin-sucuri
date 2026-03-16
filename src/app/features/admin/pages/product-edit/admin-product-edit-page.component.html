@@ -1,0 +1,96 @@
+<section class="admin-page">
+  <div class="admin-page__header">
+    <div>
+      <p class="admin-page__eyebrow">Admin</p>
+      <h1>{{ isCreateMode() ? 'Produs nou' : 'Editare produs' }}</h1>
+      <p>{{ isCreateMode() ? 'Configureaza un produs nou pentru catalog.' : 'Actualizeaza titlul, SKU-ul operational, pretul, stocul si continutul produsului.' }}</p>
+    </div>
+    <div class="admin-page__actions">
+      <a routerLink="/admin/produse">Inapoi la lista</a>
+      <button type="button" (click)="save()">{{ saving() ? 'Se salveaza...' : 'Salveaza produsul' }}</button>
+    </div>
+  </div>
+
+  @if (serverError()) {
+    <p class="admin-feedback admin-feedback--error">{{ serverError() }}</p>
+  }
+  @if (serverMessage()) {
+    <p class="admin-feedback admin-feedback--success">{{ serverMessage() }}</p>
+  }
+
+  <form class="admin-editor" [formGroup]="form" novalidate>
+    <section class="admin-card">
+      <h2>Informatii principale</h2>
+      <div class="admin-editor__grid">
+        <label>
+          <span>Categorie</span>
+          <select formControlName="categoryId">
+            @for (category of categories(); track category.id) {
+              <option [value]="category.id">{{ category.name }}</option>
+            }
+          </select>
+        </label>
+        <label>
+          <span>Nume produs</span>
+          <input formControlName="name" type="text" />
+        </label>
+        <label>
+          <span>Subtitle</span>
+          <input formControlName="subtitle" type="text" />
+        </label>
+        <label>
+          <span>Volum</span>
+          <input formControlName="volumeLabel" type="text" />
+        </label>
+        <label>
+          <span>Badge</span>
+          <input formControlName="badge" type="text" />
+        </label>
+        <label>
+          <span>Accent</span>
+          <select formControlName="accent">
+            <option value="gold">Gold</option>
+            <option value="green">Green</option>
+            <option value="red">Red</option>
+          </select>
+        </label>
+      </div>
+    </section>
+
+    <section class="admin-card">
+      <h2>Descrieri</h2>
+      <div class="admin-editor__stack">
+        <label>
+          <span>Descriere scurta</span>
+          <input formControlName="shortDescription" type="text" />
+        </label>
+        <label>
+          <span>Descriere lunga</span>
+          <textarea formControlName="description" rows="6"></textarea>
+        </label>
+      </div>
+    </section>
+
+    <section class="admin-card">
+      <h2>Pret, stoc si imagine</h2>
+      <div class="admin-editor__grid">
+        <label>
+          <span>Pret</span>
+          <input formControlName="price" type="number" />
+        </label>
+        <label>
+          <span>Stoc</span>
+          <input formControlName="stockQuantity" type="number" />
+        </label>
+        <label class="admin-editor__wide">
+          <span>Imagine principala</span>
+          <input formControlName="image" type="text" />
+        </label>
+        <label class="admin-editor__check">
+          <input formControlName="isActive" type="checkbox" />
+          <span>Produs activ in storefront</span>
+        </label>
+      </div>
+    </section>
+  </form>
+</section>

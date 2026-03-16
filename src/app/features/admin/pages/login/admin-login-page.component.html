@@ -1,0 +1,32 @@
+<section class="admin-login">
+  <form class="admin-login__panel" [formGroup]="form" novalidate (ngSubmit)="submit()">
+    <p class="admin-login__eyebrow">Admin</p>
+    <h1>Autentificare admin</h1>
+    <p class="admin-login__lead">Acces pentru administrarea produselor, comenzilor si clientilor.</p>
+
+    @if (serverError()) {
+      <p class="admin-login__error">{{ serverError() }}</p>
+    }
+
+    <label class="admin-login__field">
+      <span>Email</span>
+      <input formControlName="email" type="email" />
+    </label>
+
+    <label class="admin-login__field">
+      <span>Parola</span>
+      <input formControlName="password" type="password" />
+    </label>
+
+    <label class="admin-login__check">
+      <input formControlName="remember" type="checkbox" />
+      <span>Mentine sesiunea activa</span>
+    </label>
+
+    <button class="admin-login__button" type="submit">
+      {{ loading() ? 'Se autentifica...' : 'Intra in admin' }}
+    </button>
+
+    <a class="admin-login__back" routerLink="/">Inapoi la storefront</a>
+  </form>
+</section>

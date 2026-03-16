@@ -1,0 +1,63 @@
+<section class="admin-page">
+  <div class="admin-page__header">
+    <div>
+      <p class="admin-page__eyebrow">Admin</p>
+      <h1>Produse</h1>
+      <p>Tabel complet cu produse, SKU, stare, stoc si actiuni de editare.</p>
+    </div>
+    <a class="admin-page__cta" routerLink="/admin/produse/nou">Adauga produs</a>
+  </div>
+
+  <div class="admin-card admin-toolbar">
+    <label>
+      <span>Cauta dupa nume, SKU sau categorie</span>
+      <input [formControl]="filtersForm.controls.query" type="text" placeholder="Ex: mere, LN-MER-5L, Mixuri" />
+    </label>
+  </div>
+
+  <div class="admin-card">
+    @if (serverError()) {
+      <p>{{ serverError() }}</p>
+    } @else if (loading()) {
+      <p>Se incarca produsele...</p>
+    } @else {
+      <div class="admin-table">
+        <div class="admin-table__head">
+          <span>Produs</span>
+          <span>SKU</span>
+          <span>Categorie</span>
+          <span>Pret</span>
+          <span>Stoc</span>
+          <span>Status</span>
+          <span>Actiuni</span>
+        </div>
+
+        @for (product of paginatedProducts(); track product.id) {
+          <div class="admin-table__row">
+            <div class="admin-table__cell admin-table__cell--product">
+              <strong>{{ product.name }}</strong>
+              <p>{{ product.subtitle }}</p>
+            </div>
+            <div class="admin-table__cell">{{ product.sku }}</div>
+            <div class="admin-table__cell">{{ product.categoryName }}</div>
+            <div class="admin-table__cell">{{ product.price }} Lei</div>
+            <div class="admin-table__cell">{{ product.stockQuantity }}</div>
+            <div class="admin-table__cell">
+              <span class="admin-status" [class.is-active]="product.isActive">{{ product.isActive ? 'Activ' : 'Inactiv' }}</span>
+            </div>
+            <div class="admin-table__cell admin-table__cell--actions">
+              <a [routerLink]="['/admin/produse', product.id]">Editeaza</a>
+              <button type="button" (click)="toggleProduct(product)">{{ product.isActive ? 'Opreste' : 'Activeaza' }}</button>
+            </div>
+          </div>
+        }
+      </div>
+
+      <div class="admin-pagination">
+        <button type="button" (click)="goToPage(currentPage() - 1)">Anterior</button>
+        <span>Pagina {{ currentPage() }} din {{ totalPages() }}</span>
+        <button type="button" (click)="goToPage(currentPage() + 1)">Urmator</button>
+      </div>
+    }
+  </div>
+</section>

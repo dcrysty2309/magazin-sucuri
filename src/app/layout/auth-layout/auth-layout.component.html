@@ -1,0 +1,47 @@
+<div class="auth-layout">
+  <header class="auth-layout__header">
+    <div class="auth-layout__header-inner">
+      <a class="auth-layout__brand" routerLink="/">
+        <span class="auth-layout__brand-mark">🍎</span>
+        <span class="auth-layout__brand-text">Livada Noastra</span>
+      </a>
+
+      <nav class="auth-layout__nav" aria-label="Navigatie autentificare">
+        <a routerLink="/produse">Produse</a>
+        <a routerLink="/despre-noi">Despre noi</a>
+        <a routerLink="/procesare-fructe">Procesare fructe</a>
+        <a routerLink="/contact">Contact</a>
+      </nav>
+
+      <div class="auth-layout__actions">
+        <button type="button" aria-label="Contul meu" class="auth-layout__action" (click)="goToAccount()">
+          @if (auth.isAuthenticated()) {
+            <span class="auth-layout__initials">{{ auth.initials() }}</span>
+          } @else {
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <circle cx="12" cy="8" r="3.4" />
+              <path d="M5.5 20a6.5 6.5 0 0 1 13 0" />
+            </svg>
+          }
+        </button>
+
+        <a aria-label="Cosul meu" class="auth-layout__action" routerLink="/cart">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="9" cy="20" r="1.6" />
+            <circle cx="18" cy="20" r="1.6" />
+            <path d="M3 4h2.8l2.3 10.1h10.3l2.1-7.1H7.2" />
+          </svg>
+          @if (cart.itemCount()) {
+            <span class="auth-layout__badge">{{ cart.itemCount() }}</span>
+          }
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main class="auth-layout__content">
+    <section class="auth-layout__panel">
+      <router-outlet />
+    </section>
+  </main>
+</div>

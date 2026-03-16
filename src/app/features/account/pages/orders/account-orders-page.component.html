@@ -1,0 +1,40 @@
+<app-account-shell
+  description="Vezi statusul comenzilor si produsele incluse in fiecare livrare."
+  title="Comenzile mele"
+>
+  <div class="account-orders-list">
+    @if (serverError()) {
+      <article class="account-order-card">
+        <p>{{ serverError() }}</p>
+      </article>
+    } @else if (loading()) {
+      <article class="account-order-card">
+        <p>Se incarca comenzile...</p>
+      </article>
+    } @else if (!orders().length) {
+      <article class="account-order-card">
+        <p>Nu ai comenzi inca. Dupa prima comanda vei putea urmari statusul aici.</p>
+      </article>
+    } @else {
+      @for (order of orders(); track order.code) {
+        <article class="account-order-card">
+          <div class="account-order-card__top">
+            <div>
+              <span>{{ order.code }}</span>
+              <strong>{{ formatDate(order.createdAt) }}</strong>
+            </div>
+            <div>
+              <span>{{ order.status }}</span>
+              <strong>{{ order.total }} Lei</strong>
+            </div>
+          </div>
+          <ul>
+            @for (item of order.items; track item.name + item.variant) {
+              <li>{{ item.name }} · {{ item.variant }} · x{{ item.quantity }}</li>
+            }
+          </ul>
+        </article>
+      }
+    }
+  </div>
+</app-account-shell>

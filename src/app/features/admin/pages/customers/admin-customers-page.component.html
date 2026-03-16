@@ -1,0 +1,28 @@
+<section class="admin-page">
+  <div class="admin-page__header">
+    <p class="admin-page__eyebrow">Admin</p>
+    <h1>Clienti</h1>
+    <p>Clientii inregistrati si valoarea cumulata a comenzilor plasate.</p>
+  </div>
+
+  <div class="admin-card">
+    @if (!customers().length) {
+      <p>Nu exista clienti inregistrati inca.</p>
+    } @else {
+      <div class="admin-list">
+        @for (customer of customers(); track customer.id) {
+          <div class="admin-list__row">
+            <div>
+              <strong>{{ customer.name }}</strong>
+              <p>{{ customer.email }}</p>
+            </div>
+            <div>
+              <span>{{ customer.ordersCount }} comenzi</span>
+              <strong>{{ customer.totalSpent }} Lei</strong>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </div>
+</section>

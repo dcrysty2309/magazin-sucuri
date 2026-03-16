@@ -1,0 +1,70 @@
+<section class="category-page">
+  <div class="category-page__inner">
+    <div class="category-intro">
+      <div class="category-copy">
+        <h1>{{ activeCategory()?.name || 'Suc natural de mere din livada noastra' }}</h1>
+        <p class="category-copy__description">
+          {{ activeCategory()?.description || '100% suc de mere presat din fructe cultivate in livada proprie. Fara zahar adaugat, fara conservanti.' }}
+        </p>
+
+        <div class="category-badges">
+          @for (benefit of benefits; track benefit.label) {
+            <span class="category-badge" [attr.data-tone]="benefit.tone">{{ benefit.label }}</span>
+          }
+        </div>
+
+        <div class="category-volume">
+          <p>Categorie activa:</p>
+          <div class="category-volume__switch">
+            @for (category of categories(); track category.id) {
+              <button [class.is-active]="category.slug === selectedCategory()" type="button" (click)="selectCategory(category.slug)">
+                {{ category.name }}
+              </button>
+            }
+          </div>
+        </div>
+      </div>
+
+      <div class="category-visual">
+        <img alt="Categorie produse Livada Noastra" [src]="activeCategory()?.image || '/images/homepage-hero.png'" />
+      </div>
+    </div>
+
+    <div class="category-grid">
+      @if (serverError()) {
+        <p class="category-page__feedback">{{ serverError() }}</p>
+      } @else if (loading()) {
+        <p class="category-page__feedback">Se incarca produsele...</p>
+      } @else {
+      @for (product of products(); track product.id) {
+        <article class="category-card">
+          <a class="category-card__image-link" [routerLink]="['/produse', product.slug]">
+            <span class="category-card__tag" [attr.data-accent]="product.accent">{{ product.badge || product.volumeLabel }}</span>
+            <img
+              [alt]="product.name"
+              [src]="product.image"
+              class="category-card__image"
+            />
+          </a>
+          <div class="category-card__body">
+            <p>{{ product.subtitle }}</p>
+            <h2>{{ product.name }}</h2>
+            <p class="category-card__description">{{ product.shortDescription }}</p>
+            <div class="category-card__footer">
+              <div class="category-card__price-block">
+                <span>de la</span>
+                <strong>{{ formatPrice(product.price) }}</strong>
+              </div>
+              <span class="category-card__shipping">Livrare 24-48h</span>
+            </div>
+            <div class="category-card__actions">
+              <button class="category-card__button" type="button" (click)="addToCart(product)">Adauga in Cos</button>
+              <a class="category-card__link" [routerLink]="['/produse', product.slug]">Vezi produs</a>
+            </div>
+          </div>
+        </article>
+      }
+      }
+    </div>
+  </div>
+</section>

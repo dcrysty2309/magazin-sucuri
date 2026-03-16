@@ -1,0 +1,52 @@
+.admin-page {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.admin-page__eyebrow {
+  color: var(--color-accent);
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.admin-card {
+  padding: 1.25rem;
+  border: 1px solid rgba(90, 53, 40, 0.1);
+  border-radius: 20px;
+  background: rgba(255, 251, 244, 0.92);
+}
+
+.admin-list {
+  display: grid;
+  gap: 0.8rem;
+}
+
+.admin-list__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.95rem 0;
+  border-top: 1px solid rgba(90, 53, 40, 0.08);
+}
+
+.admin-list__row:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+
+.admin-page__header p,
+.admin-list__row p,
+.admin-list__row span {
+  margin: 0;
+  color: rgba(90, 53, 40, 0.72);
+}
+
+@media (max-width: 720px) {
+  .admin-list__row {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+}

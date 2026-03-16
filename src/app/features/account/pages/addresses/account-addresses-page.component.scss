@@ -1,0 +1,46 @@
+:host {
+  display: block;
+}
+
+.account-addresses {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.account-address-card {
+  padding: 1.4rem;
+  border: 1px solid rgba(200, 168, 107, 0.24);
+  border-radius: 24px;
+  background: rgba(255, 252, 246, 0.85);
+  box-shadow: 0 20px 40px rgba(83, 58, 35, 0.08);
+}
+
+.account-address-card span {
+  color: rgba(90, 53, 40, 0.68);
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.account-address-card h2 {
+  margin: 0.45rem 0 0.7rem;
+}
+
+.account-address-card p,
+.account-address-card small {
+  margin: 0;
+  color: var(--color-text);
+  line-height: 1.7;
+}
+
+.account-address-card small {
+  display: block;
+  margin-top: 0.7rem;
+}
+
+@media (max-width: 767px) {
+  .account-addresses {
+    grid-template-columns: 1fr;
+  }
+}

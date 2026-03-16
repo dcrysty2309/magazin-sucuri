@@ -1,0 +1,30 @@
+<div class="admin-layout">
+  <aside class="admin-sidebar">
+    <a class="admin-sidebar__brand" routerLink="/admin/dashboard">Livada Admin</a>
+
+    <nav aria-label="Navigatie admin">
+      @for (item of navigation; track item.route) {
+        <a [routerLink]="item.route" class="admin-sidebar__link" routerLinkActive="is-active">
+          {{ item.label }}
+        </a>
+      }
+    </nav>
+  </aside>
+
+  <div class="admin-content">
+    <header class="admin-topbar">
+      <div>
+        <p class="admin-topbar__eyebrow">Panou de administrare</p>
+        <strong>{{ auth.displayName() || 'Administrator' }}</strong>
+      </div>
+      <div class="admin-topbar__actions">
+        <a routerLink="/">Vezi storefront</a>
+        <button type="button" (click)="logout()">Logout</button>
+      </div>
+    </header>
+
+    <main class="admin-main">
+      <router-outlet />
+    </main>
+  </div>
+</div>

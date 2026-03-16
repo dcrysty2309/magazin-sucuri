@@ -1,0 +1,81 @@
+<app-account-shell
+  description="Vezi rapid comenzile active, datele contului si accesul spre paginile utile."
+  title="Dashboard"
+>
+  @if (overview(); as data) {
+    <div class="account-overview">
+      @for (item of data.highlights; track item.label) {
+        <article class="account-stat">
+          <span>{{ item.label }}</span>
+          <strong>{{ item.value }}</strong>
+          <small>{{ item.detail }}</small>
+        </article>
+      }
+    </div>
+
+    <div class="account-grid">
+      <article class="account-card">
+        <h2>Date cont</h2>
+        <dl>
+          <div>
+            <dt>Nume</dt>
+            <dd>{{ auth.displayName() }}</dd>
+          </div>
+          <div>
+            <dt>Email</dt>
+            <dd>{{ auth.user()?.email }}</dd>
+          </div>
+          <div>
+            <dt>Status</dt>
+            <dd>Cont activ in sesiunea curenta</dd>
+          </div>
+        </dl>
+      </article>
+
+      <article class="account-card">
+        <h2>Ce poti face acum</h2>
+        <div class="account-actions">
+          <a routerLink="/account/comenzi">Verifica comenzile</a>
+          <a routerLink="/account/adrese">Gestioneaza adresele</a>
+          <a routerLink="/produse">Comanda din nou</a>
+        </div>
+      </article>
+    </div>
+
+    <div class="account-grid">
+      <article class="account-card">
+        <h2>Comenzi recente</h2>
+        <div class="account-orders-preview">
+          @if (data.recentOrders.length) {
+            @for (order of data.recentOrders; track order.code) {
+              <div class="account-orders-preview__item">
+                <div>
+                  <strong>{{ order.code }}</strong>
+                  <p>{{ formatOrderItems(order.items) }}</p>
+                </div>
+                <div>
+                  <span>{{ order.status }}</span>
+                  <strong>{{ order.total }} Lei</strong>
+                </div>
+              </div>
+            }
+          } @else {
+            <p>Nu ai comenzi inca. Prima ta comanda va aparea aici.</p>
+          }
+        </div>
+      </article>
+
+      <article class="account-card">
+        <h2>Informatii utile</h2>
+        <div class="account-note">
+          <p>Livrarea standard este 24-48h, iar comenzile confirmate pana la ora 14:00 pleaca in aceeasi zi lucratoare.</p>
+          <a routerLink="/contact">Ai nevoie de ajutor?</a>
+        </div>
+      </article>
+    </div>
+  } @else {
+    <div class="account-card">
+      <p>{{ serverError() || 'Se incarca dashboard-ul...' }}</p>
+    </div>
+  }
+</app-account-shell>

@@ -1,0 +1,59 @@
+<section class="product-detail">
+  <div class="product-detail__inner">
+    @if (product(); as item) {
+      <nav aria-label="Breadcrumb" class="product-detail__breadcrumb">
+        <a routerLink="/">Acasa</a>
+        <span>/</span>
+        <a routerLink="/produse">Produse</a>
+        <span>/</span>
+        <strong>{{ item.name }}</strong>
+      </nav>
+
+      <div class="product-detail__layout">
+        <div class="product-detail__gallery">
+          <div class="product-detail__frame">
+            <img [alt]="item.images[0]?.alt || item.name" [src]="item.images[0]?.url || '/images/homepage-hero.png'" />
+          </div>
+          <div class="product-detail__thumbs">
+            @for (image of item.images; track image.url) {
+              <img [alt]="image.alt" [src]="image.url" />
+            }
+          </div>
+        </div>
+
+        <div class="product-detail__content">
+          <p class="product-detail__eyebrow">{{ item.subtitle }}</p>
+          <h1>{{ item.name }}</h1>
+          <p class="product-detail__price">{{ formatPrice(item.price) }}</p>
+          <p class="product-detail__description">
+            {{ item.shortDescription }}
+          </p>
+
+          <ul class="product-detail__highlights">
+            @for (highlight of item.highlights; track highlight) {
+              <li>{{ highlight }}</li>
+            }
+          </ul>
+
+          <div class="product-detail__actions">
+            <button class="product-detail__button product-detail__button--solid" type="button" (click)="addToCart()">Adauga in Cos</button>
+            <a class="product-detail__button product-detail__button--ghost" routerLink="/produse">Inapoi la produse</a>
+          </div>
+
+          <div class="product-detail__meta">
+            <article>
+              <h2>Descriere</h2>
+              <p>{{ item.description }}</p>
+            </article>
+            <article>
+              <h2>Livrare</h2>
+              <p>Expediere nationala in 24-48 de ore, ambalare sigura si produse pregatite pentru consum curat, acasa sau la birou.</p>
+            </article>
+          </div>
+        </div>
+      </div>
+    } @else {
+      <p>{{ serverError() || 'Se incarca produsul...' }}</p>
+    }
+  </div>
+</section>

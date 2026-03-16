@@ -1,0 +1,24 @@
+<section class="admin-page">
+  <div class="admin-page__header">
+    <p class="admin-page__eyebrow">Admin</p>
+    <h1>Stoc</h1>
+    <p>Monitorizare rapida pentru produsele cu stoc redus.</p>
+  </div>
+
+  <div class="admin-card">
+    <div class="admin-list">
+      @for (item of items(); track item.id) {
+        <div class="admin-list__row">
+          <div>
+            <strong>{{ item.name }}</strong>
+            <p>{{ item.sku }}</p>
+          </div>
+          <div>
+            <span>{{ item.isActive ? 'Activ' : 'Inactiv' }}</span>
+            <strong>{{ item.stockQuantity }} buc</strong>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+</section>

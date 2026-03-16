@@ -1,0 +1,100 @@
+<section class="checkout-page">
+  <div class="checkout-page__inner">
+    <div class="checkout-page__intro">
+      <p class="checkout-page__eyebrow">Checkout</p>
+      <h1>Finalizare comanda</h1>
+      <p>Completeaza datele de livrare. Comanda va fi scrisa in baza de date si va aparea imediat in contul tau si in admin.</p>
+    </div>
+
+    <div class="checkout-page__layout">
+      <form class="checkout-form" [formGroup]="form" novalidate (ngSubmit)="submit()">
+        @if (serverError()) {
+          <p class="checkout-form__error">{{ serverError() }}</p>
+        }
+
+        @if (serverMessage()) {
+          <p class="checkout-form__success">{{ serverMessage() }}</p>
+        }
+
+        <div class="checkout-form__grid">
+          <label>
+            <span>Nume complet</span>
+            <input formControlName="customerName" type="text" />
+          </label>
+          <label>
+            <span>Email</span>
+            <input formControlName="customerEmail" type="email" />
+          </label>
+          <label>
+            <span>Telefon</span>
+            <input formControlName="customerPhone" type="text" />
+          </label>
+          <label>
+            <span>Judet</span>
+            <input formControlName="county" type="text" />
+          </label>
+          <label>
+            <span>Oras</span>
+            <input formControlName="city" type="text" />
+          </label>
+          <label>
+            <span>Cod postal</span>
+            <input formControlName="postalCode" type="text" />
+          </label>
+        </div>
+
+        <label>
+          <span>Adresa</span>
+          <input formControlName="addressLine1" type="text" />
+        </label>
+
+        <label>
+          <span>Detalii adresa</span>
+          <input formControlName="addressLine2" type="text" />
+        </label>
+
+        <label>
+          <span>Observatii</span>
+          <textarea formControlName="notes" rows="4"></textarea>
+        </label>
+
+        <button class="checkout-form__button" type="submit">
+          {{ loading() ? 'Se proceseaza...' : 'Plaseaza comanda' }}
+        </button>
+      </form>
+
+      <aside class="checkout-summary">
+        <h2>Rezumat cos</h2>
+        <div class="checkout-summary__items">
+          @for (item of cart.items(); track item.id) {
+            <div class="checkout-summary__item">
+              <div>
+                <strong>{{ item.name }}</strong>
+                <p>{{ item.variant }} · x{{ item.quantity }}</p>
+              </div>
+              <span>{{ cart.formatPrice(item.unitPrice * item.quantity) }}</span>
+            </div>
+          }
+        </div>
+
+        <div class="checkout-summary__totals">
+          <div>
+            <span>Subtotal</span>
+            <strong>{{ cart.formatPrice(cart.subtotal()) }}</strong>
+          </div>
+          <div>
+            <span>Livrare</span>
+            <strong>{{ cart.subtotal() >= 150 ? 'Gratis' : '19 Lei' }}</strong>
+          </div>
+        </div>
+
+        <div class="checkout-summary__grand-total">
+          <span>Total</span>
+          <strong>{{ cart.formatPrice(cart.subtotal() + (cart.subtotal() >= 150 ? 0 : 19)) }}</strong>
+        </div>
+
+        <a routerLink="/cart">Inapoi la cos</a>
+      </aside>
+    </div>
+  </div>
+</section>

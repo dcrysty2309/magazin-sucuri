@@ -1,0 +1,29 @@
+<section class="admin-page">
+  <div class="admin-page__header">
+    <p class="admin-page__eyebrow">Admin</p>
+    <h1>Comenzi</h1>
+    <p>Urmareste comenzile plasate din checkout si actualizeaza statusul operational.</p>
+  </div>
+
+  <div class="admin-card">
+    @if (!orders().length) {
+      <p>Nu exista comenzi inca.</p>
+    } @else {
+      <div class="admin-list">
+        @for (order of orders(); track order.id) {
+          <div class="admin-list__row">
+            <div>
+              <strong>{{ order.code }}</strong>
+              <p>{{ order.customerName }} · {{ order.customerEmail }}</p>
+            </div>
+            <div>
+              <span>{{ order.status }} / {{ order.paymentStatus }}</span>
+              <strong>{{ order.total }} Lei</strong>
+            </div>
+            <button type="button" (click)="markShipped(order)">Marcheaza in livrare</button>
+          </div>
+        }
+      </div>
+    }
+  </div>
+</section>

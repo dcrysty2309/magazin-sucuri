@@ -1,0 +1,210 @@
+<div class="storefront-layout">
+  <header class="storefront-header" [class.is-scrolled]="isScrolled">
+    <div class="storefront-header__inner">
+      <button
+        type="button"
+        class="storefront-menu-toggle"
+        [class.is-open]="isMobileMenuOpen"
+        [attr.aria-expanded]="isMobileMenuOpen"
+        aria-label="Deschide meniul"
+        (click)="toggleMobileMenu()"
+      >
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+
+      <a class="storefront-brand" routerLink="/">
+        <span class="storefront-brand__mark">🍎</span>
+        <span class="storefront-brand__text">Livada Noastra</span>
+      </a>
+
+      <nav aria-label="Navigatie principala" class="storefront-nav">
+        @for (item of navigation; track item.route) {
+          <a
+            [routerLink]="item.route"
+            class="storefront-nav__link"
+            routerLinkActive="is-active"
+            (click)="closeMobileMenu()"
+          >
+            {{ item.label }}
+          </a>
+        }
+      </nav>
+
+      <div class="storefront-actions">
+        <div class="storefront-account" [class.is-open]="isAccountMenuOpen">
+          <button
+            type="button"
+            class="storefront-actions__icon storefront-actions__icon--utility storefront-account__trigger"
+            [attr.aria-label]="auth.isAuthenticated() ? 'Deschide meniul contului' : 'Contul meu'"
+            (click)="auth.isAuthenticated() ? toggleAccountMenu() : goToAccount()"
+          >
+            @if (auth.isAuthenticated()) {
+              <span class="storefront-account__initials">{{ auth.initials() }}</span>
+            } @else {
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <circle cx="12" cy="8" r="3.4" />
+                <path d="M5.5 20a6.5 6.5 0 0 1 13 0" />
+              </svg>
+            }
+          </button>
+
+          @if (auth.isAuthenticated() && isAccountMenuOpen) {
+            <div class="storefront-account__dropdown">
+              <p class="storefront-account__eyebrow">Conectat ca</p>
+              <strong>{{ auth.displayName() }}</strong>
+              <span>{{ auth.user()?.email }}</span>
+              <a routerLink="/account/profil" (click)="closeAccountMenu()">Profilul meu</a>
+              <a routerLink="/account/comenzi" (click)="closeAccountMenu()">Comenzile mele</a>
+              <a routerLink="/account/adrese" (click)="closeAccountMenu()">Adrese salvate</a>
+              <button type="button" (click)="logout()">Deconectare</button>
+            </div>
+          }
+        </div>
+
+        <button type="button" class="storefront-actions__icon storefront-actions__icon--cart" aria-label="Deschide cosul" (click)="toggleMiniCart()">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="9" cy="20" r="1.6" />
+            <circle cx="18" cy="20" r="1.6" />
+            <path d="M3 4h2.8l2.3 10.1h10.3l2.1-7.1H7.2" />
+          </svg>
+          @if (cart.itemCount()) {
+            <span class="storefront-actions__badge">{{ cart.itemCount() }}</span>
+          }
+        </button>
+      </div>
+    </div>
+
+  </header>
+
+  <div class="storefront-mobile-overlay" [class.is-open]="isMobileMenuOpen || cart.miniCartOpen()" (click)="closeAllPanels()"></div>
+
+  <aside class="storefront-mobile-drawer" [class.is-open]="isMobileMenuOpen">
+    <div class="storefront-mobile-drawer__header">
+      <span class="storefront-mobile-drawer__title">Meniu</span>
+      <button type="button" class="storefront-mobile-close" aria-label="Inchide meniul" (click)="closeMobileMenu()">
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+
+    <nav aria-label="Navigatie mobila" class="storefront-mobile-nav">
+      @for (item of navigation; track item.route) {
+        <a
+          [routerLink]="item.route"
+          class="storefront-mobile-nav__link"
+          routerLinkActive="is-active"
+          (click)="closeMobileMenu()"
+        >
+          {{ item.label }}
+        </a>
+      }
+    </nav>
+
+    <a class="storefront-mobile-account" [routerLink]="auth.isAuthenticated() ? '/account/profil' : '/auth/login'" (click)="closeMobileMenu()">
+      <span>{{ auth.isAuthenticated() ? auth.displayName() : 'Contul meu' }}</span>
+      <small>{{ auth.isAuthenticated() ? 'Vezi profilul si comenzile' : 'Autentificare sau creare cont' }}</small>
+    </a>
+
+    <div class="storefront-mobile-actions">
+      @for (item of socialLinks; track item.label) {
+        <a [attr.aria-label]="item.label" [href]="item.href" class="storefront-actions__icon">
+          @switch (item.icon) {
+            @case ('phone') {
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M21 16.2v3a2 2 0 0 1-2.2 2A19.8 19.8 0 0 1 3 5.2 2 2 0 0 1 5 3h3a2 2 0 0 1 2 1.7l.4 2.6a2 2 0 0 1-.6 1.8l-1.8 1.8a16 16 0 0 0 6.2 6.2l1.8-1.8a2 2 0 0 1 1.8-.6l2.6.4A2 2 0 0 1 21 16.2Z" />
+              </svg>
+            }
+            @case ('mail') {
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <rect x="3" y="5" width="18" height="14" rx="2" ry="2" />
+                <path d="m4 7 8 6 8-6" />
+              </svg>
+            }
+            @case ('instagram') {
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <rect x="3" y="3" width="18" height="18" rx="5" ry="5" />
+                <circle cx="12" cy="12" r="4" />
+                <circle cx="17.2" cy="6.8" r="1" />
+              </svg>
+            }
+            @case ('facebook') {
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M15 5.5h-2.2c-2 0-3.3 1.3-3.3 3.5v2.1H7.8v2.8h1.7v4.6h2.8v-4.6h2.2l.4-2.8h-2.6V9.3c0-.8.3-1.1 1.1-1.1H15V5.5Z" />
+              </svg>
+            }
+          }
+        </a>
+      }
+    </div>
+  </aside>
+
+  <aside class="storefront-minicart" [class.is-open]="cart.miniCartOpen()">
+    <div class="storefront-minicart__header">
+      <div>
+        <span class="storefront-minicart__eyebrow">Cosul tau</span>
+        <h2>{{ cart.itemCount() }} produse</h2>
+      </div>
+      <button type="button" class="storefront-minicart__close" aria-label="Inchide cosul" (click)="closeAllPanels()">
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+
+    @if (cart.items().length) {
+      <div class="storefront-minicart__items">
+        @for (item of cart.items(); track item.id) {
+          <article class="storefront-minicart__item">
+            <img [alt]="item.name" [src]="item.image" />
+            <div class="storefront-minicart__content">
+              <p>{{ item.variant }}</p>
+              <h3>{{ item.name }}</h3>
+              <strong>{{ cart.formatPrice(item.unitPrice) }}</strong>
+              <div class="storefront-minicart__qty">
+                <button type="button" (click)="cart.decreaseQuantity(item.id)">-</button>
+                <span>{{ item.quantity }}</span>
+                <button type="button" (click)="cart.increaseQuantity(item.id)">+</button>
+              </div>
+            </div>
+            <button type="button" class="storefront-minicart__remove" (click)="cart.removeItem(item.id)">Elimina</button>
+          </article>
+        }
+      </div>
+
+      <div class="storefront-minicart__summary">
+        <div class="storefront-minicart__row">
+          <span>Subtotal</span>
+          <strong>{{ cart.formatPrice(cart.subtotal()) }}</strong>
+        </div>
+        <a routerLink="/cart" class="storefront-minicart__button storefront-minicart__button--ghost" (click)="closeAllPanels()">Vezi cosul</a>
+        <a routerLink="/checkout" class="storefront-minicart__button" (click)="closeAllPanels()">Finalizeaza comanda</a>
+      </div>
+    } @else {
+      <div class="storefront-minicart__empty">
+        <h3>Cosul este gol</h3>
+        <p>Adauga un produs pentru a vedea sumarul comenzii aici.</p>
+        <a routerLink="/produse" class="storefront-minicart__button" (click)="closeAllPanels()">Vezi produse</a>
+      </div>
+    }
+  </aside>
+
+  <main class="storefront-main">
+    <router-outlet />
+  </main>
+
+  <footer class="storefront-footer">
+    <div class="storefront-footer__inner">
+      <div>
+        <strong>Livada Noastra</strong>
+        <p>Sucuri naturale, presate la rece, cu o prezentare premium si curata.</p>
+      </div>
+      <nav aria-label="Link-uri footer">
+        <a routerLink="/contact">Contact</a>
+        <a routerLink="/despre-noi">Despre noi</a>
+        <a routerLink="/procesare-fructe">Procesare fructe</a>
+        <a routerLink="/cart">Cos</a>
+      </nav>
+    </div>
+  </footer>
+</div>

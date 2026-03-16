@@ -1,0 +1,130 @@
+:host {
+  display: block;
+}
+
+.account-shell {
+  width: min(var(--container-page), calc(100% - 48px));
+  margin: 0 auto;
+  padding: 140px 0 72px;
+  display: grid;
+  grid-template-columns: 280px minmax(0, 1fr);
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.account-shell__sidebar,
+.account-shell__content {
+  border: 1px solid rgba(200, 168, 107, 0.24);
+  border-radius: 24px;
+  background: rgba(255, 252, 246, 0.88);
+  box-shadow: 0 20px 40px rgba(83, 58, 35, 0.08);
+}
+
+.account-shell__sidebar {
+  padding: 1.25rem;
+  position: sticky;
+  top: 104px;
+  display: grid;
+  gap: 1rem;
+}
+
+.account-shell__profile {
+  padding: 1rem;
+  display: grid;
+  gap: 0.35rem;
+  border-radius: 18px;
+  background: rgba(245, 239, 230, 0.9);
+}
+
+.account-shell__profile span {
+  width: 56px;
+  height: 56px;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  background: var(--color-accent);
+  color: #fffdf9;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.account-shell__profile strong {
+  color: var(--color-heading);
+}
+
+.account-shell__profile small {
+  color: var(--color-text);
+  line-height: 1.5;
+}
+
+.account-shell__nav {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.account-shell__nav a,
+.account-shell__logout {
+  padding: 0.85rem 0.95rem;
+  border-radius: 14px;
+  color: var(--color-heading);
+  font-weight: 600;
+  text-align: left;
+  background: transparent;
+  cursor: pointer;
+}
+
+.account-shell__nav a.is-active {
+  background: rgba(95, 119, 64, 0.12);
+}
+
+.account-shell__logout {
+  border: 1px solid rgba(200, 168, 107, 0.24);
+}
+
+.account-shell__content {
+  padding: 1.6rem;
+  display: grid;
+  gap: 1.4rem;
+}
+
+.account-shell__eyebrow {
+  margin: 0 0 0.65rem;
+  color: var(--color-accent);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-size: 0.76rem;
+  font-weight: 700;
+}
+
+.account-shell__header h1,
+.account-shell__header p {
+  margin: 0;
+}
+
+.account-shell__header p {
+  margin-top: 0.65rem;
+  color: var(--color-text);
+  line-height: 1.7;
+}
+
+.account-shell__body {
+  display: grid;
+  gap: 1.2rem;
+}
+
+@media (max-width: 960px) {
+  .account-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .account-shell__sidebar {
+    position: static;
+  }
+}
+
+@media (max-width: 767px) {
+  .account-shell {
+    width: min(100% - 24px, 680px);
+    padding: 112px 0 56px;
+  }
+}

@@ -1,0 +1,60 @@
+<section class="cart-page">
+  <div class="cart-page__inner">
+    <div class="cart-page__header">
+      <div>
+        <p class="cart-page__eyebrow">Cos</p>
+        <h1>Cosul tau de cumparaturi</h1>
+      </div>
+      <a class="cart-page__continue" routerLink="/produse">Continua cumparaturile</a>
+    </div>
+
+    <div class="cart-page__layout">
+      <div class="cart-list">
+        @if (cart.items().length) {
+          @for (item of cart.items(); track item.id) {
+            <article class="cart-item">
+              <img [alt]="item.name" [src]="item.image" />
+              <div class="cart-item__content">
+                <p class="cart-item__variant">{{ item.variant }}</p>
+                <h2>{{ item.name }}</h2>
+                <div class="cart-item__meta">
+                  <div class="cart-item__quantity">
+                    <button type="button" (click)="cart.decreaseQuantity(item.id)">-</button>
+                    <span>{{ item.quantity }}</span>
+                    <button type="button" (click)="cart.increaseQuantity(item.id)">+</button>
+                  </div>
+                  <strong>{{ cart.formatPrice(item.unitPrice * item.quantity) }}</strong>
+                </div>
+                <button type="button" class="cart-item__remove" (click)="cart.removeItem(item.id)">Elimina produsul</button>
+              </div>
+            </article>
+          }
+        } @else {
+          <article class="cart-empty">
+            <h2>Cosul tau este gol</h2>
+            <p>Adauga produse din catalog pentru a vedea aici sumarul comenzii.</p>
+            <a class="cart-summary__button" routerLink="/produse">Mergi la produse</a>
+          </article>
+        }
+      </div>
+
+      <aside class="cart-summary">
+        <h2>Sumar comanda</h2>
+        <div class="cart-summary__row">
+          <span>Subtotal</span>
+          <strong>{{ cart.formatPrice(cart.subtotal()) }}</strong>
+        </div>
+        <div class="cart-summary__row">
+          <span>Livrare estimata</span>
+          <strong>{{ cart.items().length ? '18 Lei' : '0 Lei' }}</strong>
+        </div>
+        <div class="cart-summary__row cart-summary__row--total">
+          <span>Total</span>
+          <strong>{{ cart.formatPrice(cart.subtotal() + (cart.items().length ? 18 : 0)) }}</strong>
+        </div>
+        <a class="cart-summary__button" routerLink="/checkout">Continua spre Checkout</a>
+        <p class="cart-summary__note">Plata, livrarea si validarea finala vor fi conectate in fazele urmatoare.</p>
+      </aside>
+    </div>
+  </div>
+</section>

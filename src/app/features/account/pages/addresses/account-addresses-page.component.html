@@ -1,0 +1,29 @@
+<app-account-shell
+  description="Adresele folosite pentru livrarile recurente si punctele tale de drop-off."
+  title="Adrese salvate"
+>
+  <div class="account-addresses">
+    @if (serverError()) {
+      <article class="account-address-card">
+        <p>{{ serverError() }}</p>
+      </article>
+    } @else if (loading()) {
+      <article class="account-address-card">
+        <p>Se incarca adresele...</p>
+      </article>
+    } @else if (!addresses().length) {
+      <article class="account-address-card">
+        <p>Nu ai adrese salvate inca. Prima adresa va aparea aici dupa checkout.</p>
+      </article>
+    } @else {
+      @for (address of addresses(); track address.id) {
+        <article class="account-address-card">
+          <span>{{ address.isDefault ? 'Adresa principala' : address.label }}</span>
+          <h2>{{ address.recipientName }}</h2>
+          <p>{{ address.line1 }}{{ address.line2 ? ', ' + address.line2 : '' }}, {{ address.city }}, {{ address.county }}</p>
+          <small>Telefon: {{ address.phone }}</small>
+        </article>
+      }
+    }
+  </div>
+</app-account-shell>

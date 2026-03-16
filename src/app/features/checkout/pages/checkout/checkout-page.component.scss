@@ -1,0 +1,147 @@
+:host {
+  display: block;
+}
+
+.checkout-page {
+  padding: 7rem 0 3rem;
+}
+
+.checkout-page__inner {
+  width: min(var(--container-page), calc(100% - 96px));
+  margin: 0 auto;
+  padding: 0 48px;
+}
+
+.checkout-page__intro {
+  max-width: 48rem;
+  margin-bottom: 2rem;
+}
+
+.checkout-page__eyebrow {
+  margin: 0 0 0.5rem;
+  color: var(--color-accent);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.checkout-page__layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(320px, 0.9fr);
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.checkout-form,
+.checkout-summary {
+  padding: 1.5rem;
+  border: 1px solid rgba(90, 53, 40, 0.1);
+  border-radius: 24px;
+  background: rgba(255, 251, 244, 0.92);
+  box-shadow: 0 20px 40px rgba(83, 58, 35, 0.08);
+}
+
+.checkout-form {
+  display: grid;
+  gap: 1rem;
+}
+
+.checkout-form__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.checkout-form label {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.checkout-form input,
+.checkout-form textarea {
+  min-height: 52px;
+  padding: 0.9rem 1rem;
+  border: 1px solid rgba(90, 53, 40, 0.14);
+  border-radius: 14px;
+  background: #fffdfa;
+}
+
+.checkout-form textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+.checkout-form__button {
+  min-height: 54px;
+  border: 0;
+  border-radius: 14px;
+  background: var(--color-accent);
+  color: #fff9f1;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.checkout-form__error,
+.checkout-form__success {
+  margin: 0;
+  padding: 0.85rem 1rem;
+  border-radius: 14px;
+}
+
+.checkout-form__error {
+  background: rgba(190, 60, 47, 0.1);
+  color: #8f3028;
+}
+
+.checkout-form__success {
+  background: rgba(61, 107, 68, 0.12);
+  color: #33543a;
+}
+
+.checkout-summary {
+  display: grid;
+  gap: 1rem;
+}
+
+.checkout-summary__items,
+.checkout-summary__totals {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.checkout-summary__item,
+.checkout-summary__totals > div,
+.checkout-summary__grand-total {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.checkout-summary__item p {
+  margin: 0.25rem 0 0;
+}
+
+.checkout-summary__grand-total {
+  padding-top: 1rem;
+  border-top: 1px solid rgba(90, 53, 40, 0.1);
+}
+
+@media (max-width: 900px) {
+  .checkout-page__layout,
+  .checkout-form__grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 720px) {
+  .checkout-page {
+    padding-top: 5.75rem;
+  }
+
+  .checkout-page__inner {
+    width: calc(100% - 48px);
+    padding: 0;
+  }
+}

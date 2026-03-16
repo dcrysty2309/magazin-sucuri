@@ -1,0 +1,26 @@
+[
+  {
+    "id": "c06c19a2-bcf6-495e-a254-4cf17aec96cf",
+    "firstName": "Test",
+    "lastName": "User",
+    "email": "test@example.com",
+    "phone": "0736628325",
+    "passwordHash": "de6e96d1d2c2814db2966650d5a0c5a4:94cce59c67e67fb2c4deda5cfb0c8fc15377b5d53e40fc168aca8feb6cd6809ef07f2cc20a831190a119aea86dad9b33a434aa25411fcb5b93a4fbfc4550614c",
+    "emailVerified": false,
+    "confirmationToken": "a4247fe8-7b70-42bc-8313-e73c038ab7df",
+    "resetToken": null,
+    "createdAt": "2026-03-13T10:47:35.091Z"
+  },
+  {
+    "id": "0064fa7a-ea6a-4c03-890b-b8ac6ba3a2dd",
+    "firstName": "Cristian",
+    "lastName": "Diaconescu",
+    "email": "d.crysty23@gmail.com",
+    "phone": "0736628325",
+    "passwordHash": "a17cae3a29b004604f4e79ccf72c07d4:36b5b3ee155d5ac66a79c18a917e522f2c09bd432256c7e4c46182daa3813a833074958906a3aeb06627a0253126b250f6db179be6792e3cc7544ed12306c86b",
+    "emailVerified": true,
+    "confirmationToken": null,
+    "resetToken": null,
+    "createdAt": "2026-03-13T10:48:14.626Z"
+  }
+]

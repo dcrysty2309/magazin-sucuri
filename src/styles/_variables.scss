@@ -1,0 +1,43 @@
+:root {
+  --color-background: #f7f0e3;
+  --color-surface: #ffffff;
+  --color-surface-soft: #faf5ea;
+  --color-surface-strong: #ede4d0;
+  --color-parchment: #f5ead2;
+  --color-heading: #3a2110;
+  --color-text: #5c3d1e;
+  --color-text-muted: #8a7060;
+  --color-accent: #3d6b44;
+  --color-accent-hover: #2d5234;
+  --color-border: rgba(200, 168, 107, 0.27);
+  --color-border-strong: rgba(200, 168, 107, 0.4);
+  --color-wood: #c89a6d;
+  --color-gold: #c8a86b;
+  --color-apple: #be3c2f;
+  --color-juice: #d88b1f;
+
+  --font-display: 'Playfair Display', Georgia, 'Times New Roman', serif;
+  --font-body: 'Lora', Georgia, 'Times New Roman', serif;
+  --font-script: 'Dancing Script', cursive;
+  --font-ui: 'Inter', Arial, sans-serif;
+
+  --shadow-soft: 0 4px 20px rgba(100, 60, 10, 0.1);
+  --shadow-soft-hover: 0 10px 32px rgba(100, 60, 10, 0.16);
+  --shadow-story: 0 8px 28px rgba(0, 0, 0, 0.14);
+
+  --container-page: 1512px;
+
+  --radius-card: 12px;
+  --radius-button: 6px;
+  --radius-hero-cta: 4px;
+
+  --space-section-y: 70px;
+  --space-section-x: 48px;
+  --space-nav-y: 20px;
+  --space-nav-x: 56px;
+  --space-footer-y: 28px;
+  --space-footer-x: 56px;
+  --space-products-gap: 22px;
+  --space-features-gap: 16px;
+  --space-story-gap: 56px;
+}
