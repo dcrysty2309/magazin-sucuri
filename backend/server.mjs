@@ -537,19 +537,22 @@ async function seedStoreCatalog() {
 }
 
 async function seedAdminUser() {
-  const email = normalizeEmail(env.ADMIN_EMAIL || 'admin@livadanoastra.local');
+  const email = normalizeEmail(env.ADMIN_EMAIL || 'admin');
   const firstName = env.ADMIN_FIRST_NAME || 'Admin';
   const lastName = env.ADMIN_LAST_NAME || 'Livada';
   const phone = env.ADMIN_PHONE || '0700000000';
-  const password = env.ADMIN_PASSWORD || 'Admin123!';
+  const password = env.ADMIN_PASSWORD || 'admin';
+  const passwordHash = await bcrypt.hash(password, BCRYPT_ROUNDS);
 
   const existing = await pool.query('SELECT id FROM users WHERE email = $1 LIMIT 1', [email]);
   if (existing.rowCount) {
-    await pool.query('UPDATE users SET role = $2 WHERE email = $1', [email, 'admin']);
+    await pool.query(
+      'UPDATE users SET role = $2, password_hash = $3, email_verified = TRUE WHERE email = $1',
+      [email, 'admin', passwordHash],
+    );
     return;
   }
 
-  const passwordHash = await bcrypt.hash(password, BCRYPT_ROUNDS);
   await pool.query(
     `
       INSERT INTO users (
