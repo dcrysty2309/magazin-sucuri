@@ -20,6 +20,7 @@
               <span>{{ customer.ordersCount }} comenzi</span>
               <strong>{{ customer.totalSpent }} Lei</strong>
             </div>
+            <a [routerLink]="['/admin/clienti', customer.id]">Detalii</a>
           </div>
         }
       </div>

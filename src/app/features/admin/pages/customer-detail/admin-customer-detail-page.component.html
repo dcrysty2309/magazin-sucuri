@@ -1,0 +1,65 @@
+<section class="admin-page">
+  <div class="admin-page__header">
+    <div>
+      <p class="admin-page__eyebrow">CRM</p>
+      <h1>Detaliu client</h1>
+      <p>Profil complet cu istoric de comenzi, total cheltuit si adrese salvate.</p>
+    </div>
+    <a routerLink="/admin/clienti" class="admin-page__back">Inapoi la clienti</a>
+  </div>
+
+  @if (serverError()) {
+    <div class="admin-card"><p>{{ serverError() }}</p></div>
+  } @else if (loading()) {
+    <div class="admin-card"><p>Se incarca clientul...</p></div>
+  } @else if (customer()) {
+    <div class="admin-grid">
+      <section class="admin-card">
+        <h2>{{ customer()?.name }}</h2>
+        <div class="admin-meta">
+          <p>{{ customer()?.email }}</p>
+          <p>{{ customer()?.phone }}</p>
+          <p>{{ customer()?.ordersCount }} comenzi</p>
+          <strong>{{ customer()?.totalSpent }} Lei</strong>
+        </div>
+      </section>
+
+      <section class="admin-card">
+        <h2>Adrese</h2>
+        <div class="admin-list">
+          @for (address of customer()?.addresses ?? []; track address.id) {
+            <div class="admin-list__row">
+              <div>
+                <strong>{{ address.label }}</strong>
+                <p>{{ address.recipientName }}</p>
+              </div>
+              <div>
+                <p>{{ address.line1 }}</p>
+                <p>{{ address.city }}, {{ address.county }}</p>
+                <p>{{ address.postalCode }}</p>
+              </div>
+            </div>
+          }
+        </div>
+      </section>
+
+      <section class="admin-card admin-card--wide">
+        <h2>Istoric comenzi</h2>
+        <div class="admin-list">
+          @for (order of customer()?.orders ?? []; track order.id) {
+            <div class="admin-list__row">
+              <div>
+                <strong>{{ order.code }}</strong>
+                <p>{{ order.status }} / {{ order.paymentStatus }}</p>
+              </div>
+              <div>
+                <strong>{{ order.total }} Lei</strong>
+                <p>{{ order.createdAt | date:'mediumDate' }}</p>
+              </div>
+            </div>
+          }
+        </div>
+      </section>
+    </div>
+  }
+</section>

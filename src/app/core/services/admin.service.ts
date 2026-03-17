@@ -42,6 +42,10 @@ export class AdminService {
     return payload.product;
   }
 
+  async deleteProduct(id: string): Promise<{ message: string }> {
+    return this.delete(`/api/admin/products/${id}`);
+  }
+
   async getCategories(): Promise<any[]> {
     const payload = await this.get('/api/admin/categories');
     return payload.categories ?? [];
@@ -57,6 +61,11 @@ export class AdminService {
     return payload.orders ?? [];
   }
 
+  async getOrder(id: string): Promise<any> {
+    const payload = await this.get(`/api/admin/orders/${id}`);
+    return payload.order;
+  }
+
   async updateOrder(id: string, data: any): Promise<any> {
     const payload = await this.patch(`/api/admin/orders/${id}`, data);
     return payload.order;
@@ -67,9 +76,34 @@ export class AdminService {
     return payload.customers ?? [];
   }
 
+  async getCustomer(id: string): Promise<any> {
+    const payload = await this.get(`/api/admin/customers/${id}`);
+    return payload.customer;
+  }
+
   async getInventory(): Promise<any[]> {
     const payload = await this.get('/api/admin/inventory');
     return payload.items ?? [];
+  }
+
+  async getShippingSettings(): Promise<any> {
+    return this.get('/api/admin/shipping');
+  }
+
+  async updateShippingSettings(data: any): Promise<any> {
+    return this.post('/api/admin/shipping', data);
+  }
+
+  async getPaymentsSettings(): Promise<any> {
+    return this.get('/api/admin/payments');
+  }
+
+  async updatePaymentsSettings(data: any): Promise<any> {
+    return this.post('/api/admin/payments', data);
+  }
+
+  async getAnalytics(): Promise<any> {
+    return this.get('/api/admin/analytics');
   }
 
   private async get(path: string): Promise<any> {
@@ -102,6 +136,20 @@ export class AdminService {
       credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
+    });
+
+    if (!response.ok) {
+      const payload = await response.json();
+      throw new Error(payload.message || 'Cererea admin a esuat.');
+    }
+
+    return response.json();
+  }
+
+  private async delete(path: string): Promise<any> {
+    const response = await fetch(apiUrl(path), {
+      method: 'DELETE',
+      credentials: 'include',
     });
 
     if (!response.ok) {

@@ -3,7 +3,7 @@
     <div>
       <p class="admin-page__eyebrow">Admin</p>
       <h1>Produse</h1>
-      <p>Tabel complet cu produse, SKU, stare, stoc si actiuni de editare.</p>
+      <p>Tabel complet cu produse, tip, stare, stoc si actiuni CRUD pentru catalog.</p>
     </div>
     <a class="admin-page__cta" routerLink="/admin/produse/nou">Adauga produs</a>
   </div>
@@ -13,7 +13,22 @@
       <span>Cauta dupa nume, SKU sau categorie</span>
       <input [formControl]="filtersForm.controls.query" type="text" placeholder="Ex: mere, LN-MER-5L, Mixuri" />
     </label>
+    <label>
+      <span>Tip produs</span>
+      <select [formControl]="filtersForm.controls.type">
+        <option value="all">Toate</option>
+        <option value="1L">1L</option>
+        <option value="3L">3L</option>
+        <option value="5L">5L</option>
+        <option value="750ml">750ml</option>
+        <option value="3 x 330ml">Pachet degustare</option>
+      </select>
+    </label>
   </div>
+
+  @if (toastMessage()) {
+    <div class="admin-feedback admin-feedback--success">{{ toastMessage() }}</div>
+  }
 
   <div class="admin-card">
     @if (serverError()) {
@@ -26,6 +41,7 @@
           <span>Produs</span>
           <span>SKU</span>
           <span>Categorie</span>
+          <span>Tip</span>
           <span>Pret</span>
           <span>Stoc</span>
           <span>Status</span>
@@ -40,6 +56,7 @@
             </div>
             <div class="admin-table__cell">{{ product.sku }}</div>
             <div class="admin-table__cell">{{ product.categoryName }}</div>
+            <div class="admin-table__cell">{{ product.volumeLabel }}</div>
             <div class="admin-table__cell">{{ product.price }} Lei</div>
             <div class="admin-table__cell">{{ product.stockQuantity }}</div>
             <div class="admin-table__cell">
@@ -48,6 +65,7 @@
             <div class="admin-table__cell admin-table__cell--actions">
               <a [routerLink]="['/admin/produse', product.id]">Editeaza</a>
               <button type="button" (click)="toggleProduct(product)">{{ product.isActive ? 'Opreste' : 'Activeaza' }}</button>
+              <button type="button" class="is-danger" (click)="requestDelete(product)">Sterge</button>
             </div>
           </div>
         }
@@ -60,4 +78,21 @@
       </div>
     }
   </div>
+
+  @if (pendingDeleteProduct(); as product) {
+    <div class="admin-modal">
+      <div class="admin-modal__backdrop" (click)="cancelDelete()"></div>
+      <div class="admin-modal__dialog">
+        <p class="admin-page__eyebrow">Confirmare</p>
+        <h2>Stergi produsul?</h2>
+        <p>{{ product.name }} va fi eliminat din catalogul admin.</p>
+        <div class="admin-modal__actions">
+          <button type="button" (click)="cancelDelete()">Renunta</button>
+          <button type="button" class="is-danger" (click)="confirmDelete()" [disabled]="deletingProductId() === product.id">
+            {{ deletingProductId() === product.id ? 'Se sterge...' : 'Sterge produsul' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  }
 </section>

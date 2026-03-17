@@ -1,5 +1,111 @@
-<app-page-shell
-  eyebrow="Storefront"
-  title="Contact"
-  description="Pagina de contact va include date de contact, formular si informatii logistice. In aceasta faza pregatim doar ruta si shell-ul."
-/>
+<section class="contact-hero">
+  <img
+    class="contact-hero__image"
+    src="/images/homepage-hero.png"
+    alt="Mere proaspete in livada pentru sucul natural de mere"
+  >
+
+  <div class="contact-hero__overlay"></div>
+
+  <div class="contact-hero__content">
+    <p class="contact-hero__eyebrow">Magazin Sucuri</p>
+    <h1>Contacteaza-ne</h1>
+    <p class="contact-hero__lead">
+      Suntem aici pentru intrebarile tale despre sucul nostru natural de mere, comenzi, livrare si colaborari.
+    </p>
+  </div>
+</section>
+
+<main class="contact-page">
+  <section class="contact-shell" aria-labelledby="contact-form-title">
+    <div class="contact-shell__intro">
+      <p class="section-kicker">Suntem usor de gasit</p>
+      <h2 id="contact-form-title">Scrie-ne direct pentru intrebari despre suc de mere natural</h2>
+      <p>
+        Daca vrei detalii despre produse, procesare, livrare sau colaborari, foloseste formularul de mai jos.
+        Raspundem cu claritate si rapiditate, intr-un ton simplu si prietenos.
+      </p>
+
+      <div class="contact-info">
+        <article class="contact-info__card">
+          <span class="contact-info__icon" aria-hidden="true">A</span>
+          <div>
+            <h3>Email</h3>
+            <p>contact&#64;livadanoastra.ro</p>
+          </div>
+        </article>
+
+        <article class="contact-info__card">
+          <span class="contact-info__icon" aria-hidden="true">L</span>
+          <div>
+            <h3>Telefon</h3>
+            <p>+40 723 000 111</p>
+          </div>
+        </article>
+
+        <article class="contact-info__card">
+          <span class="contact-info__icon" aria-hidden="true">P</span>
+          <div>
+            <h3>Program</h3>
+            <p>Luni - Vineri, 09:00 - 18:00</p>
+          </div>
+        </article>
+      </div>
+    </div>
+
+    <!-- Formular premium tip glass card -->
+    <section class="contact-form-card" aria-label="Formular de contact">
+      <div class="contact-form-card__leaf" aria-hidden="true"></div>
+
+      <form class="contact-form" novalidate>
+        <div class="contact-form__grid">
+          <label class="contact-field">
+            <span>Nume</span>
+            <div class="contact-field__control">
+              <i aria-hidden="true">N</i>
+              <input type="text" name="name" placeholder="Numele tau complet" />
+            </div>
+          </label>
+
+          <label class="contact-field">
+            <span>Email</span>
+            <div class="contact-field__control">
+              <i aria-hidden="true">&#64;</i>
+              <input type="email" name="email" placeholder="adresa@email.ro" />
+            </div>
+          </label>
+
+          <label class="contact-field">
+            <span>Telefon</span>
+            <div class="contact-field__control">
+              <i aria-hidden="true">T</i>
+              <input type="tel" name="phone" placeholder="+40 7xx xxx xxx" />
+            </div>
+          </label>
+
+          <label class="contact-field">
+            <span>Subiect</span>
+            <div class="contact-field__control">
+              <i aria-hidden="true">S</i>
+              <input type="text" name="subject" placeholder="Comenzi, produse, colaborari" />
+            </div>
+          </label>
+        </div>
+
+        <label class="contact-field contact-field--message">
+          <span>Mesaj</span>
+          <div class="contact-field__control contact-field__control--textarea">
+            <i aria-hidden="true">M</i>
+            <textarea
+              name="message"
+              rows="6"
+              placeholder="Spune-ne cu ce te putem ajuta in legatura cu sucul nostru natural de mere."
+            ></textarea>
+          </div>
+        </label>
+
+        <button class="contact-form__submit" type="submit">Trimite mesaj</button>
+      </form>
+    </section>
+  </section>
+</main>

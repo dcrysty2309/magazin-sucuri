@@ -1,12 +1,18 @@
 <section class="admin-page">
   <div class="admin-page__header">
-    <p class="admin-page__eyebrow">Admin</p>
-    <h1>Comenzi</h1>
-    <p>Urmareste comenzile plasate din checkout si actualizeaza statusul operational.</p>
+    <div>
+      <p class="admin-page__eyebrow">Admin</p>
+      <h1>Comenzi</h1>
+      <p>Urmareste comenzile, schimba statusul operational si deschide detalii complete pentru fiecare comanda.</p>
+    </div>
   </div>
 
   <div class="admin-card">
-    @if (!orders().length) {
+    @if (serverError()) {
+      <p>{{ serverError() }}</p>
+    } @else if (loading()) {
+      <p>Se incarca comenzile...</p>
+    } @else if (!orders().length) {
       <p>Nu exista comenzi inca.</p>
     } @else {
       <div class="admin-list">
@@ -20,10 +26,67 @@
               <span>{{ order.status }} / {{ order.paymentStatus }}</span>
               <strong>{{ order.total }} Lei</strong>
             </div>
-            <button type="button" (click)="markShipped(order)">Marcheaza in livrare</button>
+            <div class="admin-list__actions">
+              <button type="button" (click)="updateStatus(order, 'Noua')">Noua</button>
+              <button type="button" (click)="updateStatus(order, 'In procesare')">Procesare</button>
+              <button type="button" (click)="updateStatus(order, 'Livrata')">Livrata</button>
+              <button type="button" class="is-secondary" (click)="openDetails(order)">Detalii</button>
+            </div>
           </div>
         }
       </div>
     }
   </div>
+
+  @if (selectedOrder(); as order) {
+    <div class="admin-modal">
+      <div class="admin-modal__backdrop" (click)="closeDetails()"></div>
+      <div class="admin-modal__dialog">
+        <div class="admin-modal__header">
+          <div>
+            <p class="admin-page__eyebrow">Detalii comanda</p>
+            <h2>{{ order.code }}</h2>
+          </div>
+          <button type="button" class="is-secondary" (click)="closeDetails()">Inchide</button>
+        </div>
+
+        <div class="admin-modal__grid">
+          <section>
+            <h3>Client</h3>
+            <p>{{ order.customerName }}</p>
+            <p>{{ order.customerEmail }}</p>
+            <p>{{ order.customerPhone }}</p>
+          </section>
+          <section>
+            <h3>Adresa</h3>
+            @if (order.address) {
+              <p>{{ order.address.line1 }}</p>
+              <p>{{ order.address.city }}, {{ order.address.county }}</p>
+              <p>{{ order.address.postalCode }}</p>
+            } @else {
+              <p>Adresa nu este disponibila.</p>
+            }
+          </section>
+        </div>
+
+        <section class="admin-modal__section">
+          <h3>Produse</h3>
+          <div class="admin-items">
+            @for (item of order.items; track item.productName + item.variantLabel) {
+              <div class="admin-items__row">
+                <div>
+                  <strong>{{ item.productName }}</strong>
+                  <p>{{ item.variantLabel }}</p>
+                </div>
+                <div>
+                  <span>{{ item.quantity }} x {{ item.unitPrice }} Lei</span>
+                  <strong>{{ item.lineTotal }} Lei</strong>
+                </div>
+              </div>
+            }
+          </div>
+        </section>
+      </div>
+    </div>
+  }
 </section>

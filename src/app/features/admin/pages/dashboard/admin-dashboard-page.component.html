@@ -1,9 +1,70 @@
 <section class="admin-page">
   <div class="admin-page__header">
-    <p class="admin-page__eyebrow">Admin</p>
-    <h1>Dashboard</h1>
-    <p>O vedere rapida asupra comenzilor, clientilor si sanatatii magazinului.</p>
+    <div>
+      <p class="admin-page__eyebrow">Admin</p>
+      <h1>Dashboard</h1>
+      <p>Panou principal cu KPI-uri, trend de vanzari, produse populare si ultimele comenzi.</p>
+    </div>
+
+    <div class="admin-page__actions">
+      <div class="dashboard-control dashboard-control--range" aria-label="Interval raportare">
+        <div class="dashboard-control__meta">
+          <span class="dashboard-control__label">Raportare</span>
+          <strong>{{ range() === '7' ? 'Ultimele 7 zile' : 'Ultimele 30 zile' }}</strong>
+        </div>
+
+        <div class="dashboard-segmented">
+          <button type="button" [class.is-active]="range() === '7'" [disabled]="refreshing()" (click)="changeRange('7')">7 zile</button>
+          <button type="button" [class.is-active]="range() === '30'" [disabled]="refreshing()" (click)="changeRange('30')">30 zile</button>
+        </div>
+      </div>
+
+      <button type="button" class="admin-page__button admin-page__button--secondary" [disabled]="refreshing()" (click)="refresh()">
+        {{ refreshing() ? 'Se actualizeaza...' : 'Refresh' }}
+      </button>
+
+      <div class="dashboard-control dashboard-control--export" [class.is-open]="exportMenuOpen()">
+        <div class="dashboard-control__meta">
+          <span class="dashboard-control__label">Export</span>
+          <strong>Raport dashboard</strong>
+        </div>
+
+        <div class="dashboard-dropdown">
+          <button
+            type="button"
+            class="dashboard-dropdown__trigger"
+            [disabled]="exporting() !== ''"
+            [attr.aria-expanded]="exportMenuOpen()"
+            (click)="toggleExportMenu()"
+          >
+            <span>{{ exporting() ? 'Se pregateste exportul...' : 'Alege formatul' }}</span>
+            <strong>{{ exporting() ? exporting()!.toUpperCase() : 'CSV / Excel / PDF' }}</strong>
+          </button>
+
+          @if (exportMenuOpen()) {
+            <div class="dashboard-dropdown__menu">
+              <button type="button" (click)="exportReport('csv')">
+                <strong>CSV</strong>
+                <span>Export rapid pentru tabele si Sheets</span>
+              </button>
+              <button type="button" (click)="exportReport('excel')">
+                <strong>Excel</strong>
+                <span>Fisier compatibil pentru raportare operationala</span>
+              </button>
+              <button type="button" (click)="exportReport('pdf')">
+                <strong>PDF</strong>
+                <span>Raport gata de trimis catre management</span>
+              </button>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
   </div>
+
+  @if (toastMessage()) {
+    <div class="admin-toast admin-toast--success">{{ toastMessage() }}</div>
+  }
 
   @if (serverError()) {
     <div class="admin-card">
@@ -20,22 +81,65 @@
       }
     </div>
 
+    <div class="admin-grid">
+      <article class="admin-card">
+        <div class="admin-section__header">
+          <h2>Vanzari pe zile</h2>
+          <span>{{ range() }} zile</span>
+        </div>
+        <div class="admin-chart">
+          @for (point of salesByDay(); track point.label) {
+            <div class="admin-chart__item">
+              <div class="admin-chart__bar"><i [style.height.%]="(point.value / maxSalesValue()) * 100"></i></div>
+              <strong>{{ point.label }}</strong>
+              <span>{{ point.value }} Lei</span>
+            </div>
+          }
+        </div>
+      </article>
+
+      <article class="admin-card">
+        <div class="admin-section__header">
+          <h2>Produse populare</h2>
+          <span>Top vanzari</span>
+        </div>
+        <div class="admin-popular">
+          @for (product of popularProducts(); track product.label) {
+            <div class="admin-popular__row">
+              <div>
+                <strong>{{ product.label }}</strong>
+                <p>{{ product.value }} buc comandate</p>
+              </div>
+              <div class="admin-popular__bar"><i [style.width.%]="(product.value / maxPopularValue()) * 100"></i></div>
+            </div>
+          }
+        </div>
+      </article>
+    </div>
+
     <div class="admin-card">
-      <h2>Comenzi recente</h2>
+      <div class="admin-section__header">
+        <h2>Ultimele comenzi</h2>
+        <span>Sincronizat cu baza de date</span>
+      </div>
       @if (loading()) {
         <p>Se incarca...</p>
       } @else if (!recentOrders().length) {
         <p>Nu exista comenzi inca.</p>
       } @else {
         <div class="admin-list">
-          @for (order of recentOrders(); track order.code) {
+          @for (order of recentOrders(); track order.id) {
             <div class="admin-list__row">
               <div>
                 <strong>{{ order.code }}</strong>
                 <p>{{ order.customerName }}</p>
               </div>
-              <div>
-                <span>{{ order.status }}</span>
+              <div class="admin-list__actions">
+                <select [value]="order.status" [disabled]="isUpdatingOrder(order.id)" (change)="updateStatus(order, $event)">
+                  @for (status of orderStatuses; track status) {
+                    <option [value]="status">{{ status }}</option>
+                  }
+                </select>
                 <strong>{{ order.total }} Lei</strong>
                 <p>{{ formatDate(order.createdAt) }}</p>
               </div>

@@ -1,5 +1,280 @@
-<app-page-shell
-  eyebrow="Admin"
-  title="Setari"
-  description="Configuratiile globale ale magazinului vor fi implementate aici dupa finalizarea structurii de baza."
-/>
+<section class="admin-page">
+  <div class="admin-page__header">
+    <div>
+      <p class="admin-page__eyebrow">Admin</p>
+      <h1>Setari magazin</h1>
+      <p>Controleaza identitatea magazinului, livrarea, platile, SEO-ul si configuratiile operationale.</p>
+    </div>
+
+    <div class="admin-page__actions">
+      @if (hasChanges()) {
+        <span class="admin-page__badge">Modificari nesalvate</span>
+      }
+      <button type="button" (click)="save()" [disabled]="saveDisabled()">
+        {{ saving() ? 'Se salveaza...' : 'Salveaza' }}
+      </button>
+    </div>
+  </div>
+
+  @if (toastMessage()) {
+    <div class="admin-toast admin-toast--success">{{ toastMessage() }}</div>
+  }
+
+  @if (serverError()) {
+    <div class="admin-toast admin-toast--error">{{ serverError() }}</div>
+  }
+
+  @if (loading()) {
+    <div class="admin-card">
+      <p>Se incarca setarile magazinului...</p>
+    </div>
+  } @else {
+    <form class="settings-layout" [formGroup]="form" novalidate>
+      <section class="admin-card settings-tabs">
+        <div>
+          <p class="settings-sidebar__label">Module</p>
+          <h2>Configurare magazin</h2>
+        </div>
+
+        <div class="settings-tabs__list">
+          @for (module of modules; track module.key) {
+            <button
+              type="button"
+              class="settings-tabs__item"
+              [class.is-active]="activeModule() === module.key"
+              (click)="selectModule(module.key)"
+            >
+              <strong>{{ module.label }}</strong>
+              <span>{{ module.description }}</span>
+            </button>
+          }
+        </div>
+      </section>
+
+      <section class="admin-card settings-panel">
+        <div class="settings-panel__heading">
+          <p class="settings-sidebar__label">Configurare magazin</p>
+
+          @switch (activeModule()) {
+            @case ('general') {
+              <div>
+                <h2>Setari generale</h2>
+                <p>Datele de brand si contact vizibile in tot magazinul.</p>
+              </div>
+            }
+            @case ('shipping') {
+              <div>
+                <h2>Livrare</h2>
+                <p>Regulile de transport afisate in checkout si in sumarul comenzilor.</p>
+              </div>
+            }
+            @case ('payments') {
+              <div>
+                <h2>Plati</h2>
+                <p>Alege metodele disponibile pentru clienti in procesul de checkout.</p>
+              </div>
+            }
+            @case ('seo') {
+              <div>
+                <h2>SEO</h2>
+                <p>Textele cheie folosite pentru indexare si prezentare in motoarele de cautare.</p>
+              </div>
+            }
+          }
+        </div>
+
+        @switch (activeModule()) {
+          @case ('general') {
+            <div class="settings-grid" formGroupName="general">
+              <div class="settings-fields">
+                <label class="settings-field">
+                  <span class="settings-field__label">Nume magazin</span>
+                  <input formControlName="storeName" type="text" />
+                </label>
+
+                <label class="settings-field">
+                  <span class="settings-field__label">Email</span>
+                  <input formControlName="email" type="email" />
+                  @if (controlError('general.email')) {
+                    <small class="form-error">{{ controlError('general.email') }}</small>
+                  }
+                </label>
+
+                <label class="settings-field">
+                  <span class="settings-field__label">Telefon</span>
+                  <input formControlName="phone" type="text" />
+                  @if (controlError('general.phone')) {
+                    <small class="form-error">{{ controlError('general.phone') }}</small>
+                  }
+                </label>
+
+                <label class="settings-field">
+                  <span class="settings-field__label">Moneda</span>
+                  <select formControlName="currency">
+                    <option value="RON">RON</option>
+                    <option value="EUR">EUR</option>
+                    <option value="USD">USD</option>
+                  </select>
+                </label>
+
+                <label class="settings-field">
+                  <span class="settings-field__label">URL logo</span>
+                  <input formControlName="logoUrl" type="text" />
+                </label>
+
+                <label class="settings-field settings-field--file">
+                  <span class="settings-field__label">Upload logo</span>
+                  <input class="settings-file-input" type="file" accept="image/*" (change)="onLogoSelected($event)" />
+                </label>
+              </div>
+
+              <div class="logo-preview">
+                <div class="logo-preview__frame">
+                  <img [src]="logoPreview()" alt="Preview logo magazin" />
+                </div>
+                <div>
+                  <strong>{{ form.controls.general.controls.storeName.value }}</strong>
+                  <p>{{ form.controls.general.controls.email.value }}</p>
+                  <p>{{ form.controls.general.controls.phone.value }}</p>
+                </div>
+              </div>
+            </div>
+          }
+
+          @case ('shipping') {
+            <div class="settings-stack" formGroupName="shipping">
+              <label class="settings-field">
+                <span class="settings-field__label">Cost livrare</span>
+                <input formControlName="cost" type="number" min="0" />
+              </label>
+
+              <label class="settings-field">
+                <span class="settings-field__label">Prag livrare gratuita</span>
+                <input formControlName="freeThreshold" type="number" min="0" />
+              </label>
+
+              <label class="settings-check">
+                <input formControlName="enabled" type="checkbox" />
+                <span>Serviciul de livrare este activ</span>
+              </label>
+
+              <div class="settings-note">
+                <strong>Rezumat</strong>
+                <p>
+                  Livrarea este {{ form.controls.shipping.controls.enabled.value ? 'activa' : 'inactiva' }},
+                  cost standard {{ form.controls.shipping.controls.cost.value }} {{ form.controls.general.controls.currency.value }},
+                  gratuita de la {{ form.controls.shipping.controls.freeThreshold.value }} {{ form.controls.general.controls.currency.value }}.
+                </p>
+              </div>
+            </div>
+          }
+
+          @case ('payments') {
+            <div class="settings-stack" formGroupName="payments">
+              <label class="settings-check">
+                <input formControlName="cashOnDelivery" type="checkbox" />
+                <span>Ramburs</span>
+              </label>
+
+              <label class="settings-check">
+                <input formControlName="onlineCard" type="checkbox" />
+                <span>Card online</span>
+              </label>
+
+              <label class="settings-check">
+                <input formControlName="bankTransfer" type="checkbox" />
+                <span>Transfer bancar</span>
+              </label>
+
+              <div class="settings-note">
+                <strong>Recomandare operationala</strong>
+                <p>Pastreaza activa cel putin o metoda online sau offline pentru a evita blocarea checkout-ului.</p>
+              </div>
+            </div>
+          }
+
+          @case ('seo') {
+            <div class="settings-stack" formGroupName="seo">
+              <label class="settings-field">
+                <span class="settings-field__label">Meta title</span>
+                <input formControlName="metaTitle" type="text" />
+                @if (controlError('seo.metaTitle')) {
+                  <small class="form-error">{{ controlError('seo.metaTitle') }}</small>
+                }
+              </label>
+
+              <label class="settings-field">
+                <span class="settings-field__label">Meta description</span>
+                <textarea formControlName="metaDescription" rows="5"></textarea>
+                <small class="settings-counter">{{ seoDescriptionLength() }}/160</small>
+                @if (controlError('seo.metaDescription')) {
+                  <small class="form-error">{{ controlError('seo.metaDescription') }}</small>
+                }
+              </label>
+
+              <label class="settings-field">
+                <span class="settings-field__label">Keywords</span>
+                <textarea formControlName="keywords" rows="4"></textarea>
+              </label>
+            </div>
+          }
+        }
+      </section>
+
+      <aside class="admin-card settings-sidepanel">
+        <div class="settings-panel__heading">
+          <p class="settings-sidebar__label">Locatii & taxe</p>
+          <div>
+            <h2>Operatiuni</h2>
+            <p>Date logistice si fiscale folosite in configurarea magazinului.</p>
+          </div>
+        </div>
+
+        <div class="settings-sidepanel__stack">
+          <div formGroupName="location" class="settings-stack">
+            <label class="settings-field">
+              <span class="settings-field__label">Nume locatie</span>
+              <input formControlName="warehouseName" type="text" />
+            </label>
+            <label class="settings-field">
+              <span class="settings-field__label">Adresa</span>
+              <input formControlName="addressLine" type="text" />
+            </label>
+            <label class="settings-field">
+              <span class="settings-field__label">Oras</span>
+              <input formControlName="city" type="text" />
+            </label>
+            <label class="settings-field">
+              <span class="settings-field__label">Judet</span>
+              <input formControlName="county" type="text" />
+            </label>
+            <label class="settings-field">
+              <span class="settings-field__label">Cod postal</span>
+              <input formControlName="postalCode" type="text" />
+              @if (controlError('location.postalCode')) {
+                <small class="form-error">{{ controlError('location.postalCode') }}</small>
+              }
+            </label>
+          </div>
+
+          <div formGroupName="taxes" class="settings-stack">
+            <label class="settings-field">
+              <span class="settings-field__label">TVA (%)</span>
+              <input formControlName="vatRate" type="number" min="0" max="100" />
+            </label>
+
+            <label class="settings-check">
+              <input formControlName="includedInPrice" type="checkbox" />
+              <span>TVA inclus in pretul afisat</span>
+            </label>
+          </div>
+
+          <div class="settings-note">
+            <strong>Status integrare</strong>
+            <p>Pagina este pregatita pentru `GET /api/settings` si `POST /api/settings`. Pana exista backendul, datele sunt pastrate local in browser.</p>
+          </div>
+        </div>
+      </aside>
+    </form>
+  }
+</section>

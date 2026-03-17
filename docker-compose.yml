@@ -1,0 +1,40 @@
+version: '3.9'
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: magazin-sucuri-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: magazin_sucuri
+      POSTGRES_USER: magazin
+      POSTGRES_PASSWORD: magazin_dev
+    ports:
+      - '55432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U magazin -d magazin_sucuri']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: magazin-sucuri-backend
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      NODE_ENV: development
+      PORT: 4300
+      DATABASE_URL: postgresql://magazin:magazin_dev@db:5432/magazin_sucuri
+      APP_BASE_URL: http://localhost:4200
+      ADMIN_EMAIL: admin@livadanoastra.local
+      ADMIN_PASSWORD: Admin123!
+    ports:
+      - '4300:4300'
+
+volumes:
+  postgres_data:

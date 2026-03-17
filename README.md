@@ -7,10 +7,12 @@ This project was generated using [Angular CLI](https://github.com/angular/angula
 To start a local development server, run:
 
 ```bash
-ng serve
+npm start
 ```
 
 Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+
+`npm start` starts the Docker PostgreSQL database, waits for it to accept connections on `127.0.0.1:55432`, then starts the local API and Angular frontend. If the API on `:4300` or frontend on `:4200` is already running, the existing process is reused.
 
 ## Code scaffolding
 

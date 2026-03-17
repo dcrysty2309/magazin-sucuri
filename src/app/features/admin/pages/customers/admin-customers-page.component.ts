@@ -1,10 +1,12 @@
 import { Component, inject, signal } from '@angular/core';
+import { RouterLink } from '@angular/router';
 
 import { AdminService } from '../../../../core/services/admin.service';
 
 @Component({
   selector: 'app-admin-customers-page',
   standalone: true,
+  imports: [RouterLink],
   templateUrl: './admin-customers-page.component.html',
   styleUrl: './admin-customers-page.component.scss',
 })

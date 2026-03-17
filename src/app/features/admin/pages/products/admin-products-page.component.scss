@@ -43,12 +43,19 @@
   box-shadow: 0 18px 32px rgba(83, 58, 35, 0.06);
 }
 
+.admin-toolbar {
+  display: grid;
+  grid-template-columns: 1.4fr 240px;
+  gap: 1rem;
+}
+
 .admin-toolbar label {
   display: grid;
   gap: 0.45rem;
 }
 
-.admin-toolbar input {
+.admin-toolbar input,
+.admin-toolbar select {
   min-height: 48px;
   padding: 0.8rem 0.9rem;
   border: 1px solid rgba(90, 53, 40, 0.12);
@@ -63,7 +70,7 @@
 .admin-table__head,
 .admin-table__row {
   display: grid;
-  grid-template-columns: 1.5fr 1fr 1fr 0.8fr 0.7fr 0.8fr 1fr;
+  grid-template-columns: 1.45fr 1fr 1fr 0.8fr 0.8fr 0.7fr 0.8fr 1.2fr;
   gap: 1rem;
   align-items: center;
 }
@@ -91,6 +98,7 @@
 .admin-table__cell--actions {
   display: inline-flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 0.6rem;
 }
 
@@ -109,11 +117,18 @@
 }
 
 .admin-table__cell--actions button,
-.admin-pagination button {
+.admin-pagination button,
+.admin-modal__actions button {
   border: 0;
   background: rgba(61, 107, 68, 0.12);
   color: var(--color-heading);
   cursor: pointer;
+}
+
+.admin-table__cell--actions .is-danger,
+.admin-modal__actions .is-danger {
+  background: rgba(190, 60, 47, 0.12);
+  color: #8f3028;
 }
 
 .admin-status {
@@ -140,7 +155,62 @@
   margin-top: 1rem;
 }
 
+.admin-feedback {
+  padding: 0.95rem 1rem;
+  border-radius: 14px;
+  font-weight: 600;
+}
+
+.admin-feedback--success {
+  background: rgba(61, 107, 68, 0.12);
+  color: #2f5837;
+}
+
+.admin-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: grid;
+  place-items: center;
+}
+
+.admin-modal__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(28, 17, 10, 0.28);
+}
+
+.admin-modal__dialog {
+  position: relative;
+  z-index: 1;
+  width: min(460px, calc(100vw - 32px));
+  padding: 1.4rem;
+  border-radius: 20px;
+  background: #fffaf3;
+  box-shadow: 0 24px 60px rgba(83, 58, 35, 0.18);
+}
+
+.admin-modal__dialog p {
+  margin: 0;
+  color: rgba(90, 53, 40, 0.72);
+}
+
+.admin-modal__dialog h2 {
+  margin: 0.4rem 0 0.7rem;
+}
+
+.admin-modal__actions {
+  margin-top: 1rem;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+
 @media (max-width: 1200px) {
+  .admin-toolbar {
+    grid-template-columns: 1fr;
+  }
+
   .admin-table__head {
     display: none;
   }
@@ -150,7 +220,8 @@
   }
 
   .admin-page__header,
-  .admin-pagination {
+  .admin-pagination,
+  .admin-modal__actions {
     display: grid;
     grid-template-columns: 1fr;
   }

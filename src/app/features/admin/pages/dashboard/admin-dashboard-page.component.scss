@@ -3,10 +3,173 @@
   gap: 1.25rem;
 }
 
+.admin-page__header {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.admin-page__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+
+.dashboard-control {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  min-height: 74px;
+  padding: 0.8rem 0.95rem;
+  border: 1px solid rgba(90, 53, 40, 0.08);
+  border-radius: 18px;
+  background: linear-gradient(180deg, rgba(255, 254, 250, 0.98), rgba(246, 240, 231, 0.95));
+  box-shadow: 0 14px 24px rgba(83, 58, 35, 0.05);
+}
+
+.dashboard-control--range {
+  min-width: 320px;
+}
+
+.dashboard-control--export {
+  position: relative;
+  min-width: 320px;
+}
+
+.dashboard-control__meta {
+  display: grid;
+  gap: 0.15rem;
+}
+
+.dashboard-control__meta strong {
+  color: var(--color-heading);
+  font-size: 0.98rem;
+}
+
+.dashboard-control__label {
+  margin: 0;
+  color: rgba(90, 53, 40, 0.58);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.dashboard-segmented {
+  display: inline-grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  padding: 0.25rem;
+  border-radius: 999px;
+  background: rgba(90, 53, 40, 0.07);
+}
+
+.dashboard-segmented button,
+.admin-page__button {
+  min-height: 40px;
+  padding: 0.72rem 1rem;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--color-heading);
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.dashboard-segmented button.is-active,
+.admin-page__button {
+  background: #fffdfa;
+  box-shadow: 0 8px 16px rgba(83, 58, 35, 0.1);
+}
+
+.admin-page__button--secondary {
+  background: rgba(198, 143, 56, 0.08);
+  border: 1px solid rgba(198, 143, 56, 0.18);
+  border-radius: 14px;
+}
+
+.dashboard-segmented button:disabled,
+.admin-page__button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.dashboard-dropdown {
+  position: relative;
+  min-width: 220px;
+}
+
+.dashboard-dropdown__trigger {
+  width: 100%;
+  display: grid;
+  gap: 0.12rem;
+  padding: 0.85rem 1rem;
+  border: 1px solid rgba(90, 53, 40, 0.12);
+  border-radius: 16px;
+  background: #fffdfa;
+  color: var(--color-heading);
+  text-align: left;
+  cursor: pointer;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.8);
+}
+
+.dashboard-dropdown__trigger span {
+  color: rgba(90, 53, 40, 0.58);
+  font-size: 0.82rem;
+}
+
+.dashboard-dropdown__trigger strong {
+  font-size: 0.95rem;
+}
+
+.dashboard-dropdown__menu {
+  position: absolute;
+  top: calc(100% + 0.55rem);
+  right: 0;
+  z-index: 10;
+  width: min(320px, 84vw);
+  display: grid;
+  gap: 0.45rem;
+  padding: 0.6rem;
+  border: 1px solid rgba(90, 53, 40, 0.08);
+  border-radius: 18px;
+  background: rgba(255, 252, 247, 0.98);
+  box-shadow: 0 18px 32px rgba(83, 58, 35, 0.12);
+  backdrop-filter: blur(10px);
+}
+
+.dashboard-dropdown__menu button {
+  display: grid;
+  gap: 0.18rem;
+  padding: 0.9rem 0.95rem;
+  border: 0;
+  border-radius: 14px;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+
+.dashboard-dropdown__menu button:hover {
+  background: rgba(61, 107, 68, 0.08);
+}
+
+.dashboard-dropdown__menu strong {
+  color: var(--color-heading);
+}
+
+.dashboard-dropdown__menu span {
+  color: rgba(90, 53, 40, 0.64);
+  font-size: 0.82rem;
+}
+
 .admin-page__header p,
 .admin-list__row p,
 .admin-stat span,
-.admin-stat small {
+.admin-stat small,
+.admin-page__export span,
+.admin-section__header span {
   margin: 0;
   color: rgba(90, 53, 40, 0.72);
 }
@@ -38,6 +201,14 @@
   box-shadow: 0 18px 32px rgba(83, 58, 35, 0.06);
 }
 
+.admin-toast {
+  padding: 0.95rem 1rem;
+  border-radius: 14px;
+  font-weight: 600;
+  background: rgba(61, 107, 68, 0.12);
+  color: #2f5837;
+}
+
 .admin-stat {
   display: grid;
   gap: 0.35rem;
@@ -46,6 +217,79 @@
 .admin-stat strong {
   font-size: 1.7rem;
   color: var(--color-heading);
+}
+
+.admin-grid {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 1rem;
+}
+
+.admin-section__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.admin-chart {
+  min-height: 260px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(70px, 1fr));
+  gap: 0.75rem;
+  align-items: end;
+}
+
+.admin-chart__item {
+  display: grid;
+  gap: 0.55rem;
+  justify-items: center;
+}
+
+.admin-chart__bar {
+  width: 100%;
+  min-height: 180px;
+  display: flex;
+  align-items: end;
+  padding: 0.35rem;
+  border-radius: 18px;
+  background: rgba(90, 53, 40, 0.06);
+}
+
+.admin-chart__bar i {
+  width: 100%;
+  display: block;
+  border-radius: 14px;
+  background: linear-gradient(180deg, #d8b37a, #8f6131);
+}
+
+.admin-chart__item span {
+  font-size: 0.82rem;
+}
+
+.admin-popular {
+  display: grid;
+  gap: 0.9rem;
+}
+
+.admin-popular__row {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.admin-popular__bar {
+  height: 12px;
+  border-radius: 999px;
+  background: rgba(90, 53, 40, 0.08);
+  overflow: hidden;
+}
+
+.admin-popular__bar i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #3d6b44, #80b076);
 }
 
 .admin-list {
@@ -62,6 +306,22 @@
   border-top: 1px solid rgba(90, 53, 40, 0.08);
 }
 
+.admin-list__actions {
+  display: grid;
+  justify-items: end;
+  gap: 0.35rem;
+}
+
+.admin-list__actions select {
+  min-height: 38px;
+  min-width: 150px;
+  padding: 0.6rem 0.8rem;
+  border: 1px solid rgba(90, 53, 40, 0.12);
+  border-radius: 12px;
+  background: #fffdfa;
+  color: var(--color-heading);
+}
+
 .admin-list__row:first-child {
   border-top: 0;
   padding-top: 0;
@@ -71,11 +331,35 @@
   .admin-stats {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+
+  .admin-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 720px) {
+  .admin-page__header,
+  .admin-page__actions,
   .admin-stats,
   .admin-list__row {
+    grid-template-columns: 1fr;
+    display: grid;
+  }
+
+  .admin-list__actions {
+    justify-items: start;
+  }
+
+  .dashboard-control,
+  .dashboard-control--range,
+  .dashboard-control--export,
+  .dashboard-dropdown {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .dashboard-control {
+    align-items: stretch;
     grid-template-columns: 1fr;
     display: grid;
   }

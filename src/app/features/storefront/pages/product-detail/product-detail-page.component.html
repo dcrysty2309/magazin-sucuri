@@ -12,7 +12,7 @@
       <div class="product-detail__layout">
         <div class="product-detail__gallery">
           <div class="product-detail__frame">
-            <img [alt]="item.images[0]?.alt || item.name" [src]="item.images[0]?.url || '/images/homepage-hero.png'" />
+            <img [alt]="item.images.length ? item.images[0].alt : item.name" [src]="item.images.length ? item.images[0].url : '/images/homepage-hero.png'" />
           </div>
           <div class="product-detail__thumbs">
             @for (image of item.images; track image.url) {
