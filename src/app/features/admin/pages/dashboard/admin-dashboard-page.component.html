@@ -1,51 +1,80 @@
 <section class="admin-page">
-  <div class="admin-page__header">
+  <div class="admin-page__hero admin-card">
     <div>
-      <p class="admin-page__eyebrow">Admin</p>
-      <h1>Dashboard</h1>
-      <p>Panou principal cu KPI-uri, trend de vanzari, produse populare si ultimele comenzi.</p>
+      <p class="admin-page__eyebrow">Control administrare</p>
+      <h1>Dashboard premium pentru operatiuni si crestere</h1>
+      <p>Vezi instant performanta magazinului, trendul vanzarilor, comenzile recente si produsele care au nevoie de actiune.</p>
     </div>
 
     <div class="admin-page__actions">
-      <div class="dashboard-control dashboard-control--range" aria-label="Interval raportare">
-        <div class="dashboard-control__meta">
-          <span class="dashboard-control__label">Raportare</span>
-          <strong>{{ range() === '7' ? 'Ultimele 7 zile' : 'Ultimele 30 zile' }}</strong>
-        </div>
+      <div class="dashboard-action dashboard-action--report" [class.is-open]="reportMenuOpen()">
+        <app-action-button
+          label="Raportare"
+          icon="report"
+          type="success"
+          size="compact"
+          appearance="premium"
+          tooltip="Genereaza rapoarte din datele sistemului"
+          [disabled]="refreshing()"
+          [expanded]="reportMenuOpen()"
+          [clickHandler]="handleReportButtonClick"
+        />
 
-        <div class="dashboard-segmented">
-          <button type="button" [class.is-active]="range() === '7'" [disabled]="refreshing()" (click)="changeRange('7')">7 zile</button>
-          <button type="button" [class.is-active]="range() === '30'" [disabled]="refreshing()" (click)="changeRange('30')">30 zile</button>
-        </div>
+        @if (reportMenuOpen()) {
+          <div class="dashboard-panel dashboard-panel--report" aria-label="Interval raportare">
+            <div class="dashboard-panel__meta">
+              <span class="dashboard-panel__eyebrow">Raportare</span>
+              <strong>
+                @switch (range()) {
+                  @case ('1') { Astazi }
+                  @case ('30') { Ultimele 30 zile }
+                  @case ('total') { Tot istoricul }
+                  @default { Ultimele 7 zile }
+                }
+              </strong>
+              <p>Alege fereastra de analiza pentru toate graficele si tabelele din dashboard.</p>
+            </div>
+
+            <div class="dashboard-segmented dashboard-segmented--quad">
+              <button type="button" [class.is-active]="range() === '1'" [disabled]="refreshing()" (click)="changeRange('1')">1 zi</button>
+              <button type="button" [class.is-active]="range() === '7'" [disabled]="refreshing()" (click)="changeRange('7')">7 zile</button>
+              <button type="button" [class.is-active]="range() === '30'" [disabled]="refreshing()" (click)="changeRange('30')">30 zile</button>
+              <button type="button" [class.is-active]="range() === 'total'" [disabled]="refreshing()" (click)="changeRange('total')">Total</button>
+            </div>
+          </div>
+        }
       </div>
 
       <button type="button" class="admin-page__button admin-page__button--secondary" [disabled]="refreshing()" (click)="refresh()">
-        {{ refreshing() ? 'Se actualizeaza...' : 'Refresh' }}
+        {{ refreshing() ? 'Se actualizeaza...' : 'Actualizeaza' }}
       </button>
 
-      <div class="dashboard-control dashboard-control--export" [class.is-open]="exportMenuOpen()">
-        <div class="dashboard-control__meta">
-          <span class="dashboard-control__label">Export</span>
-          <strong>Raport dashboard</strong>
-        </div>
+      <div class="dashboard-action dashboard-action--export" [class.is-open]="exportMenuOpen()">
+        <app-action-button
+          [label]="exporting() ? 'Se exporta...' : 'Export'"
+          icon="export"
+          type="primary"
+          size="compact"
+          appearance="premium"
+          tooltip="Exporta datele in format CSV / Excel"
+          [loading]="exporting() !== ''"
+          [disabled]="exporting() !== ''"
+          [expanded]="exportMenuOpen()"
+          [clickHandler]="handleExportButtonClick"
+        />
 
-        <div class="dashboard-dropdown">
-          <button
-            type="button"
-            class="dashboard-dropdown__trigger"
-            [disabled]="exporting() !== ''"
-            [attr.aria-expanded]="exportMenuOpen()"
-            (click)="toggleExportMenu()"
-          >
-            <span>{{ exporting() ? 'Se pregateste exportul...' : 'Alege formatul' }}</span>
-            <strong>{{ exporting() ? exporting()!.toUpperCase() : 'CSV / Excel / PDF' }}</strong>
-          </button>
+        @if (exportMenuOpen()) {
+          <div class="dashboard-panel dashboard-panel--export">
+            <div class="dashboard-panel__meta">
+              <span class="dashboard-panel__eyebrow">Export</span>
+              <strong>Raport dashboard</strong>
+              <p>Alege formatul potrivit pentru analiza operationala, foi de calcul sau distributie interna.</p>
+            </div>
 
-          @if (exportMenuOpen()) {
             <div class="dashboard-dropdown__menu">
               <button type="button" (click)="exportReport('csv')">
                 <strong>CSV</strong>
-                <span>Export rapid pentru tabele si Sheets</span>
+                <span>Export rapid pentru tabele si foi de calcul</span>
               </button>
               <button type="button" (click)="exportReport('excel')">
                 <strong>Excel</strong>
@@ -56,8 +85,8 @@
                 <span>Raport gata de trimis catre management</span>
               </button>
             </div>
-          }
-        </div>
+          </div>
+        }
       </div>
     </div>
   </div>
@@ -71,38 +100,62 @@
       <p>{{ serverError() }}</p>
     </div>
   } @else {
-    <div class="admin-stats">
-      @for (stat of stats(); track stat.label) {
-        <article class="admin-card admin-stat">
-          <span>{{ stat.label }}</span>
-          <strong>{{ stat.value }}</strong>
-          <small>{{ stat.detail }}</small>
-        </article>
+    <div class="admin-stats admin-stats--kpi">
+      @if (loading() && !stats().length) {
+        @for (skeleton of statsSkeleton; track skeleton) {
+          <app-stat-card [loading]="true"></app-stat-card>
+        }
+      } @else {
+        @for (stat of stats(); track stat.id) {
+          <app-stat-card [metric]="stat" [loading]="false"></app-stat-card>
+        }
       }
     </div>
 
-    <div class="admin-grid">
-      <article class="admin-card">
-        <div class="admin-section__header">
-          <h2>Vanzari pe zile</h2>
-          <span>{{ range() }} zile</span>
+    <div class="admin-grid admin-grid--charts">
+      <app-chart-card title="Privire de ansamblu vanzari" subtitle="Trend de venit in intervalul selectat" eyebrow="Ansamblu" accent="gold">
+        <span card-actions class="chart-card__metric">
+          {{ range() === 'total' ? 'Total' : range() === '1' ? 'Astazi' : range() + ' zile' }}
+        </span>
+
+        <div class="overview-chart">
+          <svg viewBox="0 0 620 240" preserveAspectRatio="none" aria-hidden="true">
+            <defs>
+              <linearGradient id="sales-area" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="rgba(120, 134, 74, 0.35)"></stop>
+                <stop offset="100%" stop-color="rgba(120, 134, 74, 0)"></stop>
+              </linearGradient>
+            </defs>
+            <path class="overview-chart__area" [attr.d]="salesAreaPath()" fill="url(#sales-area)"></path>
+            <path class="overview-chart__line" [attr.d]="salesLinePath()"></path>
+          </svg>
+
+          <div class="overview-chart__legend">
+            @for (point of salesByDay(); track point.label) {
+              <div>
+                <span>{{ point.label }}</span>
+                <strong>{{ point.value }} Lei</strong>
+              </div>
+            }
+          </div>
         </div>
-        <div class="admin-chart">
-          @for (point of salesByDay(); track point.label) {
-            <div class="admin-chart__item">
-              <div class="admin-chart__bar"><i [style.height.%]="(point.value / maxSalesValue()) * 100"></i></div>
+      </app-chart-card>
+
+      <app-chart-card title="Comenzi pe zile" subtitle="Volum operational zilnic" eyebrow="Comenzi" accent="sky">
+        <div class="volume-chart">
+          @for (point of orderVolume(); track point.label) {
+            <div class="volume-chart__item">
+              <div class="volume-chart__bar">
+                <i [style.height.%]="(point.value / maxOrderVolume()) * 100"></i>
+              </div>
               <strong>{{ point.label }}</strong>
-              <span>{{ point.value }} Lei</span>
+              <span>{{ point.value }}</span>
             </div>
           }
         </div>
-      </article>
+      </app-chart-card>
 
-      <article class="admin-card">
-        <div class="admin-section__header">
-          <h2>Produse populare</h2>
-          <span>Top vanzari</span>
-        </div>
+      <app-chart-card title="Top produse" subtitle="Cele mai comandate produse in perioada" eyebrow="Produse" accent="green">
         <div class="admin-popular">
           @for (product of popularProducts(); track product.label) {
             <div class="admin-popular__row">
@@ -114,39 +167,92 @@
             </div>
           }
         </div>
-      </article>
+      </app-chart-card>
     </div>
 
-    <div class="admin-card">
-      <div class="admin-section__header">
-        <h2>Ultimele comenzi</h2>
-        <span>Sincronizat cu baza de date</span>
-      </div>
-      @if (loading()) {
-        <p>Se incarca...</p>
-      } @else if (!recentOrders().length) {
-        <p>Nu exista comenzi inca.</p>
-      } @else {
-        <div class="admin-list">
-          @for (order of recentOrders(); track order.id) {
-            <div class="admin-list__row">
-              <div>
-                <strong>{{ order.code }}</strong>
-                <p>{{ order.customerName }}</p>
-              </div>
-              <div class="admin-list__actions">
-                <select [value]="order.status" [disabled]="isUpdatingOrder(order.id)" (change)="updateStatus(order, $event)">
-                  @for (status of orderStatuses; track status) {
-                    <option [value]="status">{{ status }}</option>
-                  }
-                </select>
-                <strong>{{ order.total }} Lei</strong>
-                <p>{{ formatDate(order.createdAt) }}</p>
-              </div>
-            </div>
+    <div class="admin-grid admin-grid--tables">
+      <app-chart-card title="Comenzi recente" subtitle="Actiuni rapide pe ultimele comenzi" eyebrow="Operatiuni" accent="earth">
+        <div class="dashboard-orders-table">
+          @if (loading()) {
+            <div class="dashboard-orders-table__empty">Se incarca comenzile...</div>
+          } @else if (!recentOrders().length) {
+            <div class="dashboard-orders-table__empty">Nu exista comenzi recente.</div>
+          } @else {
+            <table>
+              <colgroup>
+                <col class="dashboard-orders-table__col--code" />
+                <col class="dashboard-orders-table__col--client" />
+                <col class="dashboard-orders-table__col--status" />
+                <col class="dashboard-orders-table__col--value" />
+                <col class="dashboard-orders-table__col--date" />
+              </colgroup>
+              <thead>
+                <tr>
+                  <th scope="col">Comanda</th>
+                  <th scope="col">Client</th>
+                  <th scope="col">Status</th>
+                  <th scope="col">Valoare</th>
+                  <th scope="col">Data</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (order of recentOrders(); track order.id) {
+                  <tr class="dashboard-orders-table__row-link">
+                    <td class="dashboard-orders-table__code">
+                      <strong>{{ order.code }}</strong>
+                    </td>
+                    <td class="dashboard-orders-table__client">
+                      <strong>{{ order.customerName }}</strong>
+                      <span>{{ order.customerEmail }}</span>
+                    </td>
+                    <td class="dashboard-orders-table__status-cell">
+                      <span class="dashboard-orders-table__status">{{ order.status }}</span>
+                    </td>
+                    <td class="dashboard-orders-table__value">
+                      <strong>{{ order.total | number: '1.0-0' }} Lei</strong>
+                    </td>
+                    <td class="dashboard-orders-table__date">
+                      <span class="dashboard-orders-table__meta-label">Data</span>
+                      <strong>{{ formatOrderDate(order.createdAt) }}</strong>
+                    </td>
+                  </tr>
+                  <tr class="dashboard-orders-table__cta-row">
+                    <td colspan="5" class="dashboard-orders-table__cta-cell">
+                      <a [routerLink]="['/admin/comenzi']" class="dashboard-orders-table__cta">Deschide comanda</a>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
           }
         </div>
-      }
+      </app-chart-card>
+
+      <app-chart-card title="Produse in focus" subtitle="Stoc si actiuni rapide pentru catalog" eyebrow="Catalog" accent="green">
+        <app-data-table
+          [columns]="productColumns"
+          [rows]="products()"
+          [loading]="loading()"
+          emptyMessage="Nu exista produse in focus."
+          columnTemplate="minmax(170px, 1.45fr) minmax(120px, 1fr) minmax(72px, 0.7fr) minmax(110px, 0.8fr) minmax(110px, 0.8fr) minmax(180px, 1.25fr)"
+          [actionTemplate]="productActions">
+          <ng-template #productActions let-product>
+            <div class="dashboard-inline-actions dashboard-inline-actions--product-menu">
+              <button type="button" class="dashboard-inline-actions__trigger">
+                Actiuni
+                <span aria-hidden="true">▾</span>
+              </button>
+              <div class="dashboard-inline-actions__menu">
+                <a [routerLink]="['/admin/produse', product.id]">Editeaza</a>
+                <button type="button" (click)="toggleProduct(product)">{{ product.isActive ? 'Opreste' : 'Activeaza' }}</button>
+                <button type="button" class="is-danger" [disabled]="deletingProductId() === product.id" (click)="deleteProduct(product)">
+                  {{ deletingProductId() === product.id ? 'Se sterge...' : 'Sterge' }}
+                </button>
+              </div>
+            </div>
+          </ng-template>
+        </app-data-table>
+      </app-chart-card>
     </div>
   }
 </section>

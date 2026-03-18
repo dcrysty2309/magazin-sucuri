@@ -5,7 +5,13 @@
       <h1>Produse</h1>
       <p>Tabel complet cu produse, tip, stare, stoc si actiuni CRUD pentru catalog.</p>
     </div>
-    <a class="admin-page__cta" routerLink="/admin/produse/nou">Adauga produs</a>
+    <div class="admin-page__header-actions">
+      <input #productsImportInput type="file" accept=".csv,.json" hidden (change)="importProducts($event)" />
+      <button type="button" class="admin-page__cta admin-page__cta--secondary" [disabled]="importInProgress()" (click)="productsImportInput.click()">
+        {{ importInProgress() ? 'Se importa...' : 'Import produse' }}
+      </button>
+      <a class="admin-page__cta" routerLink="/admin/produse/nou">Adauga produs</a>
+    </div>
   </div>
 
   <div class="admin-card admin-toolbar">
@@ -63,15 +69,54 @@
               <span class="admin-status" [class.is-active]="product.isActive">{{ product.isActive ? 'Activ' : 'Inactiv' }}</span>
             </div>
             <div class="admin-table__cell admin-table__cell--actions">
-              <a [routerLink]="['/admin/produse', product.id]">Editeaza</a>
-              <button type="button" (click)="toggleProduct(product)">{{ product.isActive ? 'Opreste' : 'Activeaza' }}</button>
-              <button type="button" class="is-danger" (click)="requestDelete(product)">Sterge</button>
+              <div class="admin-actions-menu">
+                <button type="button" class="admin-actions-menu__trigger">
+                  <span class="admin-actions-menu__dot" aria-hidden="true"></span>
+                  <span>Gestionare</span>
+                  <span class="admin-actions-menu__caret" aria-hidden="true">▾</span>
+                </button>
+
+                <div class="admin-actions-menu__panel">
+                  <a [routerLink]="['/admin/produse', product.id]">
+                    <span aria-hidden="true">✎</span>
+                    <span>Editeaza</span>
+                  </a>
+                  <button type="button" (click)="toggleProduct(product)">
+                    <span aria-hidden="true">{{ product.isActive ? '◒' : '✓' }}</span>
+                    <span>{{ product.isActive ? 'Opreste' : 'Activeaza' }}</span>
+                  </button>
+                  <button type="button" class="is-danger" (click)="requestDelete(product)">
+                    <span aria-hidden="true">🗑</span>
+                    <span>Sterge</span>
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         }
       </div>
 
       <div class="admin-pagination">
+        <label class="admin-pagination__size-selector">
+          <span>Afiseaza</span>
+          <select [value]="pageSize()" (change)="updatePageSize($any($event.target).value)">
+            @for (option of pageSizeOptions; track option) {
+              <option [value]="option">{{ option }}</option>
+            }
+          </select>
+          <span>produse</span>
+        </label>
+        <div class="admin-pagination__export-menu" [class.is-open-up]="exportMenuDirection() === 'up'">
+          <button type="button" class="admin-pagination__export-trigger" #exportTrigger (mouseenter)="updateExportMenuDirection(exportTrigger)" (focus)="updateExportMenuDirection(exportTrigger)">
+            <span>Export</span>
+            <span aria-hidden="true">{{ exportMenuDirection() === 'up' ? '▴' : '▾' }}</span>
+          </button>
+          <div class="admin-pagination__export-panel">
+            <button type="button" (click)="exportProducts('csv')">CSV</button>
+            <button type="button" (click)="exportProducts('json')">JSON</button>
+            <button type="button" (click)="exportProducts('excel')">Excel</button>
+          </div>
+        </div>
         <button type="button" (click)="goToPage(currentPage() - 1)">Anterior</button>
         <span>Pagina {{ currentPage() }} din {{ totalPages() }}</span>
         <button type="button" (click)="goToPage(currentPage() + 1)">Urmator</button>

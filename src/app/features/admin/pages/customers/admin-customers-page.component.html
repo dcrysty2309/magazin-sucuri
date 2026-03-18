@@ -1,12 +1,23 @@
 <section class="admin-page">
   <div class="admin-page__header">
-    <p class="admin-page__eyebrow">Admin</p>
-    <h1>Clienti</h1>
-    <p>Clientii inregistrati si valoarea cumulata a comenzilor plasate.</p>
+    <div>
+      <p class="admin-page__eyebrow">CRM</p>
+      <h1>Clienti</h1>
+      <p>Gestioneaza clientii inregistrati, actualizeaza datele lor si sterge conturile care nu mai sunt necesare.</p>
+    </div>
+    <button type="button" class="admin-page__cta" (click)="openCreate()">Adauga client</button>
   </div>
 
+  @if (toastMessage()) {
+    <div class="admin-feedback admin-feedback--success">{{ toastMessage() }}</div>
+  }
+
   <div class="admin-card">
-    @if (!customers().length) {
+    @if (serverError()) {
+      <p>{{ serverError() }}</p>
+    } @else if (loading()) {
+      <p>Se incarca clientii...</p>
+    } @else if (!customers().length) {
       <p>Nu exista clienti inregistrati inca.</p>
     } @else {
       <div class="admin-list">
@@ -15,15 +26,75 @@
             <div>
               <strong>{{ customer.name }}</strong>
               <p>{{ customer.email }}</p>
+              <p>{{ customer.phone }}</p>
             </div>
             <div>
               <span>{{ customer.ordersCount }} comenzi</span>
               <strong>{{ customer.totalSpent }} Lei</strong>
             </div>
-            <a [routerLink]="['/admin/clienti', customer.id]">Detalii</a>
+            <div class="admin-list__actions">
+              <a [routerLink]="['/admin/clienti', customer.id]">Detalii</a>
+              <button type="button" (click)="openEdit(customer)">Editeaza</button>
+              <button type="button" class="is-danger" (click)="confirmDelete(customer)">Sterge</button>
+            </div>
           </div>
         }
       </div>
     }
   </div>
+
+  @if (editingCustomer()) {
+    <div class="admin-modal">
+      <div class="admin-modal__backdrop" (click)="closeModal()"></div>
+      <div class="admin-modal__dialog">
+        <p class="admin-page__eyebrow">{{ editingCustomer()?.id ? 'Actualizare' : 'Client nou' }}</p>
+        <h2>{{ editingCustomer()?.id ? 'Editeaza clientul' : 'Adauga un client' }}</h2>
+
+        <form class="admin-form" [formGroup]="customerForm" (ngSubmit)="saveCustomer()">
+          <label>
+            <span>Prenume</span>
+            <input type="text" formControlName="firstName" />
+          </label>
+          <label>
+            <span>Nume</span>
+            <input type="text" formControlName="lastName" />
+          </label>
+          <label>
+            <span>Email</span>
+            <input type="email" formControlName="email" />
+          </label>
+          <label>
+            <span>Telefon</span>
+            <input type="text" formControlName="phone" />
+          </label>
+          <label class="admin-form__full">
+            <span>Parola {{ editingCustomer()?.id ? '(optional pentru resetare)' : '' }}</span>
+            <input type="text" formControlName="password" />
+          </label>
+
+          <div class="admin-modal__actions">
+            <button type="button" (click)="closeModal()">Renunta</button>
+            <button type="submit" class="is-primary" [disabled]="saving()">{{ saving() ? 'Se salveaza...' : 'Salveaza' }}</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  }
+
+  @if (deletingCustomer(); as customer) {
+    <div class="admin-modal">
+      <div class="admin-modal__backdrop" (click)="cancelDelete()"></div>
+      <div class="admin-modal__dialog">
+        <p class="admin-page__eyebrow">Confirmare</p>
+        <h2>Stergi clientul?</h2>
+        <p>{{ customer.name }} va fi eliminat din sistem. Comenzile existente raman inregistrate.</p>
+        <div class="admin-modal__actions">
+          <button type="button" (click)="cancelDelete()">Renunta</button>
+          <button type="button" class="is-danger" [disabled]="deletingCustomerId() === customer.id" (click)="deleteCustomer()">
+            {{ deletingCustomerId() === customer.id ? 'Se sterge...' : 'Sterge clientul' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  }
 </section>

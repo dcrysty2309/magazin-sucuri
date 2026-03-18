@@ -62,6 +62,9 @@ async function initializeDatabase() {
   const schemaSql = readFileSync(join(BACKEND_DIR, 'init.sql'), 'utf8');
   await dbQuery(schemaSql);
   await dbQuery(`ALTER TABLE users ADD COLUMN IF NOT EXISTS role TEXT NOT NULL DEFAULT 'customer'`);
+  await dbQuery(`CREATE INDEX IF NOT EXISTS idx_orders_created_at ON orders(created_at DESC)`);
+  await dbQuery(`CREATE INDEX IF NOT EXISTS idx_users_created_at ON users(created_at DESC)`);
+  await dbQuery(`CREATE INDEX IF NOT EXISTS idx_products_stock_active ON products(is_active, stock_quantity)`);
   await dbQuery(`DELETE FROM sessions WHERE expires_at < NOW();`);
   await seedStoreCatalog();
   await seedAdminUser();
@@ -959,6 +962,41 @@ function formatDateRo(value) {
   }).format(new Date(value));
 }
 
+function calculatePercentageChange(currentValue, previousValue) {
+  const current = Number(currentValue || 0);
+  const previous = Number(previousValue || 0);
+
+  if (previous === 0) {
+    if (current === 0) {
+      return 0;
+    }
+
+    return 100;
+  }
+
+  return Number((((current - previous) / previous) * 100).toFixed(1));
+}
+
+function inferTrend(change) {
+  if (change > 0) {
+    return 'up';
+  }
+
+  if (change < 0) {
+    return 'down';
+  }
+
+  return 'neutral';
+}
+
+function estimatePageViews(orderCount, userCount, base = 0) {
+  return Math.round(base + Number(orderCount || 0) * 24 + Number(userCount || 0) * 11);
+}
+
+function formatShortDate(value) {
+  return new Intl.DateTimeFormat('ro-RO', { day: '2-digit', month: 'short' }).format(new Date(value));
+}
+
 async function createOrder(body, user) {
   const items = Array.isArray(body.items) ? body.items : [];
   const customerName = String(body.customerName || '').trim();
@@ -1104,35 +1142,49 @@ async function createOrder(body, user) {
   };
 }
 
-async function getAdminDashboard() {
-  const [ordersCountResult, revenueResult, customersResult, lowStockResult, recentOrders] = await Promise.all([
-    dbQuery(`SELECT COUNT(*)::int AS count FROM orders`),
-    dbQuery(`SELECT COALESCE(SUM(total), 0)::numeric AS revenue FROM orders`),
-    dbQuery(`SELECT COUNT(*)::int AS count FROM users WHERE role = 'customer'`),
-    dbQuery(`SELECT COUNT(*)::int AS count FROM products WHERE stock_quantity <= 20 AND is_active = TRUE`),
+async function getAdminDashboard(range = '7') {
+  const safeRange = range === '1' || range === '30' || range === 'total' ? range : '7';
+  const [statsPayload, salesPayload, ordersPayload, productsPayload, dashboardProducts] = await Promise.all([
+    getDashboardStats(),
+    getDashboardSales(safeRange),
+    getDashboardRecentOrders(),
+    getDashboardTopProducts(safeRange),
     dbQuery(
       `
-        SELECT order_number, status, total, customer_name, created_at
-        FROM orders
-        ORDER BY created_at DESC
-        LIMIT 5
+        SELECT
+          p.id,
+          p.name,
+          p.sku,
+          p.volume_label,
+          p.stock_quantity,
+          p.base_price,
+          p.is_active,
+          c.name AS category_name
+        FROM products p
+        JOIN categories c ON c.id = p.category_id
+        ORDER BY p.stock_quantity ASC, p.created_at DESC
+        LIMIT 6
       `,
     ),
   ]);
 
   return {
-    stats: [
-      { label: 'Comenzi totale', value: `${ordersCountResult.rows[0].count}`, detail: 'toate comenzile inregistrate' },
-      { label: 'Venit brut', value: formatMoney(revenueResult.rows[0].revenue), detail: 'fara costuri si retururi' },
-      { label: 'Clienti', value: `${customersResult.rows[0].count}`, detail: 'conturi client inregistrate' },
-      { label: 'Stoc redus', value: `${lowStockResult.rows[0].count}`, detail: 'produse sub pragul de 20 bucati' },
-    ],
-    recentOrders: recentOrders.rows.map((row) => ({
-      code: row.order_number,
-      status: row.status,
-      total: Number(row.total),
-      customerName: row.customer_name,
-      createdAt: row.created_at,
+    stats: statsPayload.stats,
+    kpis: statsPayload.kpis,
+    range: safeRange,
+    sales: salesPayload.points,
+    orderVolume: salesPayload.points.map((point) => ({ label: point.label, value: point.orders || 0 })),
+    recentOrders: ordersPayload.orders,
+    topProducts: productsPayload.products,
+    products: dashboardProducts.rows.map((row) => ({
+      id: row.id,
+      name: row.name,
+      sku: row.sku,
+      volumeLabel: row.volume_label,
+      stockQuantity: row.stock_quantity,
+      price: Number(row.base_price),
+      isActive: row.is_active,
+      categoryName: row.category_name,
     })),
   };
 }
@@ -1488,6 +1540,27 @@ async function updateAdminOrder(orderId, body) {
   return (await getAdminOrders()).find((order) => order.id === orderId);
 }
 
+async function createAdminOrder(body) {
+  const result = await createOrder(body, null);
+  if (result?.status && result.status >= 400) {
+    throw new Error(result.body?.message || 'Nu am putut crea comanda.');
+  }
+
+  const createdOrder = await dbQuery(`SELECT id FROM orders WHERE order_number = $1 LIMIT 1`, [result.body.orderNumber]);
+  const orderId = createdOrder.rows[0]?.id;
+  return orderId ? getAdminOrder(orderId) : { code: result.body.orderNumber, total: result.body.total };
+}
+
+async function deleteAdminOrder(orderId) {
+  const existing = await getAdminOrder(orderId);
+  if (!existing) {
+    return { message: 'Comanda nu a fost gasita.' };
+  }
+
+  await dbQuery(`DELETE FROM orders WHERE id = $1`, [orderId]);
+  return { message: `Comanda ${existing.code} a fost stearsa.` };
+}
+
 async function getAdminCustomers() {
   const { rows } = await dbQuery(
     `
@@ -1596,6 +1669,84 @@ async function getAdminCustomer(customerId) {
       createdAt: address.created_at,
     })),
   };
+}
+
+async function createAdminCustomer(body) {
+  const firstName = String(body.firstName || '').trim();
+  const lastName = String(body.lastName || '').trim();
+  const email = normalizeEmail(body.email || '');
+  const phone = String(body.phone || '').trim();
+  const password = String(body.password || 'Client123!').trim();
+
+  if (!firstName || !lastName || !email || !phone || password.length < 8) {
+    throw new Error('Datele clientului sunt incomplete.');
+  }
+
+  const existing = await dbQuery(`SELECT id FROM users WHERE email = $1 LIMIT 1`, [email]);
+  if (existing.rowCount) {
+    throw new Error('Exista deja un client cu acest email.');
+  }
+
+  const id = randomUUID();
+  const passwordHash = await bcrypt.hash(password, BCRYPT_ROUNDS);
+  const now = new Date();
+
+  await dbQuery(
+    `
+      INSERT INTO users (
+        id, role, first_name, last_name, email, phone, password_hash, email_verified,
+        failed_login_attempts, gdpr_consent_at, created_at
+      )
+      VALUES ($1, 'customer', $2, $3, $4, $5, $6, TRUE, 0, $7, $8)
+    `,
+    [id, firstName, lastName, email, phone, passwordHash, now, now],
+  );
+
+  return getAdminCustomer(id);
+}
+
+async function updateAdminCustomer(customerId, body) {
+  const firstName = body.firstName == null ? null : String(body.firstName).trim();
+  const lastName = body.lastName == null ? null : String(body.lastName).trim();
+  const email = body.email == null ? null : normalizeEmail(body.email);
+  const phone = body.phone == null ? null : String(body.phone).trim();
+
+  if (email) {
+    const existing = await dbQuery(`SELECT id FROM users WHERE email = $1 AND id <> $2 LIMIT 1`, [email, customerId]);
+    if (existing.rowCount) {
+      throw new Error('Exista deja un client cu acest email.');
+    }
+  }
+
+  await dbQuery(
+    `
+      UPDATE users
+      SET
+        first_name = COALESCE($2, first_name),
+        last_name = COALESCE($3, last_name),
+        email = COALESCE($4, email),
+        phone = COALESCE($5, phone)
+      WHERE id = $1 AND role = 'customer'
+    `,
+    [customerId, firstName, lastName, email, phone],
+  );
+
+  if (body.password) {
+    const passwordHash = await bcrypt.hash(String(body.password), BCRYPT_ROUNDS);
+    await dbQuery(`UPDATE users SET password_hash = $2 WHERE id = $1 AND role = 'customer'`, [customerId, passwordHash]);
+  }
+
+  return getAdminCustomer(customerId);
+}
+
+async function deleteAdminCustomer(customerId) {
+  const existing = await getAdminCustomer(customerId);
+  if (!existing) {
+    return { message: 'Clientul nu a fost gasit.' };
+  }
+
+  await dbQuery(`DELETE FROM users WHERE id = $1 AND role = 'customer'`, [customerId]);
+  return { message: `Clientul ${existing.name} a fost sters.` };
 }
 
 async function getAdminInventory() {
@@ -1743,48 +1894,188 @@ async function getAdminAnalytics() {
 }
 
 async function getDashboardStats() {
-  const analytics = await getAdminAnalytics();
+  const [summaryResult, historyResult] = await Promise.all([
+    dbQuery(
+      `
+        WITH month_ranges AS (
+          SELECT
+            DATE_TRUNC('month', NOW()) AS current_start,
+            DATE_TRUNC('month', NOW()) + INTERVAL '1 month' AS next_start,
+            DATE_TRUNC('month', NOW()) - INTERVAL '1 month' AS previous_start
+        )
+        SELECT
+          (SELECT COALESCE(SUM(total), 0)::numeric FROM orders, month_ranges WHERE created_at >= current_start AND created_at < next_start) AS revenue_current,
+          (SELECT COALESCE(SUM(total), 0)::numeric FROM orders, month_ranges WHERE created_at >= previous_start AND created_at < current_start) AS revenue_previous,
+          (SELECT COUNT(*)::int FROM orders, month_ranges WHERE created_at >= current_start AND created_at < next_start) AS orders_current,
+          (SELECT COUNT(*)::int FROM orders, month_ranges WHERE created_at >= previous_start AND created_at < current_start) AS orders_previous,
+          (SELECT COUNT(*)::int FROM users, month_ranges WHERE role = 'customer' AND created_at >= current_start AND created_at < next_start) AS users_current,
+          (SELECT COUNT(*)::int FROM users, month_ranges WHERE role = 'customer' AND created_at >= previous_start AND created_at < current_start) AS users_previous,
+          (SELECT COUNT(*)::int FROM orders) AS orders_total,
+          (SELECT COALESCE(SUM(total), 0)::numeric FROM orders) AS revenue_total,
+          (SELECT COUNT(*)::int FROM users WHERE role = 'customer') AS users_total
+      `,
+    ),
+    dbQuery(
+      `
+        SELECT
+          day::date AS bucket,
+          COALESCE((
+            SELECT SUM(total)
+            FROM orders
+            WHERE created_at >= day AND created_at < day + INTERVAL '1 day'
+          ), 0)::numeric AS revenue,
+          COALESCE((
+            SELECT COUNT(*)
+            FROM orders
+            WHERE created_at >= day AND created_at < day + INTERVAL '1 day'
+          ), 0)::int AS orders,
+          COALESCE((
+            SELECT COUNT(*)
+            FROM users
+            WHERE role = 'customer' AND created_at >= day AND created_at < day + INTERVAL '1 day'
+          ), 0)::int AS users
+        FROM generate_series(CURRENT_DATE - INTERVAL '6 day', CURRENT_DATE, INTERVAL '1 day') AS day
+        ORDER BY bucket ASC
+      `,
+    ),
+  ]);
+
+  const summary = summaryResult.rows[0] ?? {};
+  const history = historyResult.rows.map((row) => ({
+    label: formatShortDate(row.bucket),
+    revenue: Math.round(Number(row.revenue || 0)),
+    orders: Number(row.orders || 0),
+    users: Number(row.users || 0),
+  }));
+
+  const revenueTotal = Math.round(Number(summary.revenue_total || 0));
+  const usersTotal = Number(summary.users_total || 0);
+  const ordersTotal = Number(summary.orders_total || 0);
+  const pageViewsTotal = estimatePageViews(ordersTotal, usersTotal, 3200);
+
+  const revenueChange = calculatePercentageChange(summary.revenue_current, summary.revenue_previous);
+  const usersChange = calculatePercentageChange(summary.users_current, summary.users_previous);
+  const ordersChange = calculatePercentageChange(summary.orders_current, summary.orders_previous);
+  const pageViewsChange = calculatePercentageChange(
+    estimatePageViews(summary.orders_current, summary.users_current, 900),
+    estimatePageViews(summary.orders_previous, summary.users_previous, 900),
+  );
+
+  const kpis = [
+    {
+      id: 'revenue',
+      label: 'Total Revenue',
+      value: revenueTotal,
+      unit: 'currency',
+      changePct: revenueChange,
+      trend: inferTrend(revenueChange),
+      history: history.map((point) => ({ label: point.label, value: point.revenue })),
+      description: 'Venit total cumulat din comenzi',
+    },
+    {
+      id: 'users',
+      label: 'Active Users',
+      value: usersTotal,
+      unit: 'number',
+      changePct: usersChange,
+      trend: inferTrend(usersChange),
+      history: history.map((point) => ({ label: point.label, value: point.users })),
+      description: 'Conturi client inregistrate in platforma',
+    },
+    {
+      id: 'orders',
+      label: 'Total Orders',
+      value: ordersTotal,
+      unit: 'number',
+      changePct: ordersChange,
+      trend: inferTrend(ordersChange),
+      history: history.map((point) => ({ label: point.label, value: point.orders })),
+      description: 'Comenzi plasate in sistem',
+    },
+    {
+      id: 'pageViews',
+      label: 'Page Views',
+      value: pageViewsTotal,
+      unit: 'number',
+      changePct: pageViewsChange,
+      trend: inferTrend(pageViewsChange),
+      history: history.map((point, index) => ({
+        label: point.label,
+        value: estimatePageViews(point.orders, point.users, 90 + index * 8),
+      })),
+      description: 'Estimare temporara pana la introducerea trackingului dedicat',
+      isMock: true,
+    },
+  ];
 
   return {
     stats: [
-      { label: 'Total comenzi', value: `${analytics.kpis.totalOrders}`, detail: 'comenzi inregistrate in sistem' },
-      { label: 'Venit total', value: `${analytics.kpis.totalRevenue} Lei`, detail: 'valoare cumulata a comenzilor' },
-      { label: 'Produse vandute', value: `${analytics.kpis.litersSold.toFixed(1)} L`, detail: 'litri de suc vanduti' },
-      { label: 'Clienti activi', value: `${analytics.kpis.activeCustomers}`, detail: 'clienti cu minimum o comanda' },
+      { label: 'Total Revenue', value: formatMoney(revenueTotal), detail: 'venit cumulat din comenzi' },
+      { label: 'Active Users', value: `${usersTotal}`, detail: 'conturi client in platforma' },
+      { label: 'Total Orders', value: `${ordersTotal}`, detail: 'comenzi inregistrate in sistem' },
+      { label: 'Page Views', value: `${pageViewsTotal}`, detail: 'estimare temporara bazata pe activitate' },
     ],
+    kpis,
   };
 }
 
 async function getDashboardSales(range = '7') {
-  const allowedRange = range === '30' ? 30 : 7;
-  const { rows } = await dbQuery(
-    `
-      SELECT created_at, total
-      FROM orders
-      WHERE created_at >= NOW() - ($1::int * INTERVAL '1 day')
-      ORDER BY created_at ASC
-    `,
-    [allowedRange],
-  );
+  const allowedRange = range === '1' ? 1 : range === '30' ? 30 : 7;
+  const rowsResult =
+    range === 'total'
+      ? await dbQuery(
+          `
+            SELECT created_at, total
+            FROM orders
+            ORDER BY created_at ASC
+          `,
+        )
+      : await dbQuery(
+          `
+            SELECT created_at, total
+            FROM orders
+            WHERE created_at >= NOW() - ($1::int * INTERVAL '1 day')
+            ORDER BY created_at ASC
+          `,
+          [allowedRange],
+        );
+  const { rows } = rowsResult;
 
   const formatter = new Intl.DateTimeFormat('ro-RO', { day: '2-digit', month: 'short' });
   const buckets = new Map();
 
-  for (let offset = allowedRange - 1; offset >= 0; offset -= 1) {
-    const date = new Date();
-    date.setHours(0, 0, 0, 0);
-    date.setDate(date.getDate() - offset);
-    buckets.set(formatter.format(date), 0);
+  if (range === 'total' && rows.length) {
+    const firstDate = new Date(rows[0].created_at);
+    firstDate.setHours(0, 0, 0, 0);
+    const currentDate = new Date();
+    currentDate.setHours(0, 0, 0, 0);
+    for (const cursor = new Date(firstDate); cursor <= currentDate; cursor.setDate(cursor.getDate() + 1)) {
+      buckets.set(formatter.format(cursor), { revenue: 0, orders: 0 });
+    }
+  } else {
+    for (let offset = allowedRange - 1; offset >= 0; offset -= 1) {
+      const date = new Date();
+      date.setHours(0, 0, 0, 0);
+      date.setDate(date.getDate() - offset);
+      buckets.set(formatter.format(date), { revenue: 0, orders: 0 });
+    }
   }
 
   for (const row of rows) {
     const label = formatter.format(new Date(row.created_at));
-    buckets.set(label, (buckets.get(label) || 0) + Number(row.total || 0));
+    const current = buckets.get(label) || { revenue: 0, orders: 0 };
+    current.revenue += Number(row.total || 0);
+    current.orders += 1;
+    buckets.set(label, current);
   }
 
   return {
-    range: allowedRange,
-    points: Array.from(buckets.entries()).map(([label, value]) => ({ label, value: Math.round(value) })),
+    range: range === 'total' ? 'total' : allowedRange,
+    points: Array.from(buckets.entries()).map(([label, value]) => ({
+      label,
+      value: Math.round(value.revenue),
+      orders: value.orders,
+    })),
   };
 }
 
@@ -1813,22 +2104,34 @@ async function getDashboardRecentOrders() {
 }
 
 async function getDashboardTopProducts(range = '30') {
-  const allowedRange = range === '7' ? 7 : 30;
-  const { rows } = await dbQuery(
-    `
-      SELECT oi.product_name, COALESCE(SUM(oi.quantity), 0)::int AS quantity
-      FROM order_items oi
-      JOIN orders o ON o.id = oi.order_id
-      WHERE o.created_at >= NOW() - ($1::int * INTERVAL '1 day')
-      GROUP BY oi.product_name
-      ORDER BY quantity DESC, oi.product_name ASC
-      LIMIT 6
-    `,
-    [allowedRange],
-  );
+  const allowedRange = range === '1' ? 1 : range === '7' ? 7 : 30;
+  const { rows } =
+    range === 'total'
+      ? await dbQuery(
+          `
+            SELECT oi.product_name, COALESCE(SUM(oi.quantity), 0)::int AS quantity
+            FROM order_items oi
+            JOIN orders o ON o.id = oi.order_id
+            GROUP BY oi.product_name
+            ORDER BY quantity DESC, oi.product_name ASC
+            LIMIT 6
+          `,
+        )
+      : await dbQuery(
+          `
+            SELECT oi.product_name, COALESCE(SUM(oi.quantity), 0)::int AS quantity
+            FROM order_items oi
+            JOIN orders o ON o.id = oi.order_id
+            WHERE o.created_at >= NOW() - ($1::int * INTERVAL '1 day')
+            GROUP BY oi.product_name
+            ORDER BY quantity DESC, oi.product_name ASC
+            LIMIT 6
+          `,
+          [allowedRange],
+        );
 
   return {
-    range: allowedRange,
+    range: range === 'total' ? 'total' : allowedRange,
     products: rows.map((row) => ({
       label: row.product_name,
       value: Number(row.quantity),
@@ -1887,12 +2190,13 @@ function createSimplePdf(lines) {
   return Buffer.from(pdf, 'utf8');
 }
 
-async function exportDashboardReport(type = 'csv') {
+async function exportDashboardReport(type = 'csv', range = '1') {
+  const safeRange = range === '1' || range === '7' || range === '30' || range === 'total' ? range : '1';
   const [statsPayload, salesPayload, ordersPayload, productsPayload] = await Promise.all([
     getDashboardStats(),
-    getDashboardSales('30'),
+    getDashboardSales(safeRange),
     getDashboardRecentOrders(),
-    getDashboardTopProducts('30'),
+    getDashboardTopProducts(safeRange),
   ]);
 
   const statsLines = statsPayload.stats.map((stat) => `${stat.label}: ${stat.value}`);
@@ -1917,7 +2221,7 @@ async function exportDashboardReport(type = 'csv') {
     ];
 
     return {
-      filename: 'dashboard-report.xls',
+      filename: `dashboard-report-${safeRange === 'total' ? 'total' : `${safeRange}z`}.xls`,
       contentType: 'application/vnd.ms-excel',
       body: Buffer.from(rows.join(''), 'utf8'),
     };
@@ -1927,7 +2231,7 @@ async function exportDashboardReport(type = 'csv') {
     const pdfLines = ['Raport Dashboard', '', ...statsLines, '', 'Vanzari 30 zile', ...salesLines, '', 'Top produse', ...productLines, '', 'Comenzi recente', ...orderLines];
 
     return {
-      filename: 'dashboard-report.pdf',
+      filename: `dashboard-report-${safeRange === 'total' ? 'total' : `${safeRange}z`}.pdf`,
       contentType: 'application/pdf',
       body: createSimplePdf(pdfLines),
     };
@@ -1942,7 +2246,7 @@ async function exportDashboardReport(type = 'csv') {
   ];
 
   return {
-    filename: 'dashboard-report.csv',
+    filename: `dashboard-report-${safeRange === 'total' ? 'total' : `${safeRange}z`}.csv`,
     contentType: 'text/csv; charset=utf-8',
     body: Buffer.from(csvSections.join('\n'), 'utf8'),
   };
@@ -2240,10 +2544,15 @@ export {
   deleteAdminProduct,
   createAdminCategory,
   getAdminOrders,
+  createAdminOrder,
   getAdminOrder,
   updateAdminOrder,
+  deleteAdminOrder,
   getAdminCustomers,
   getAdminCustomer,
+  createAdminCustomer,
+  updateAdminCustomer,
+  deleteAdminCustomer,
   getAdminInventory,
   getStoreSettings,
   updateStoreSettings,

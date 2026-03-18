@@ -2,15 +2,42 @@ import { Injectable } from '@angular/core';
 
 import { apiUrl } from '../utils/api-url';
 
-export type DashboardRange = '7' | '30';
+export type DashboardRange = '1' | '7' | '30' | 'total';
 export type DashboardExportType = 'csv' | 'excel' | 'pdf';
 export type DashboardOrderStatus = 'Noua' | 'In pregatire' | 'In livrare' | 'Livrata';
+export type DashboardMetricUnit = 'currency' | 'number';
+export type DashboardMetricTrend = 'up' | 'down' | 'neutral';
+
+export interface DashboardKpiHistoryPoint {
+  label: string;
+  value: number;
+}
+
+export interface DashboardKpiMetric {
+  id: 'revenue' | 'users' | 'orders' | 'pageViews';
+  label: string;
+  value: number;
+  unit: DashboardMetricUnit;
+  changePct: number;
+  trend: DashboardMetricTrend;
+  history: DashboardKpiHistoryPoint[];
+  description: string;
+  isMock?: boolean;
+}
+
+export interface DashboardStatsResponse {
+  stats: Array<{ label: string; value: string; detail: string }>;
+  kpis: DashboardKpiMetric[];
+}
 
 @Injectable({ providedIn: 'root' })
 export class DashboardService {
-  async getStats(): Promise<any[]> {
+  async getStats(): Promise<DashboardStatsResponse> {
     const payload = await this.get('/api/dashboard/stats');
-    return payload.stats ?? [];
+    return {
+      stats: payload.stats ?? [],
+      kpis: payload.kpis ?? [],
+    };
   }
 
   async getSales(range: DashboardRange): Promise<Array<{ label: string; value: number }>> {
@@ -33,8 +60,8 @@ export class DashboardService {
     return payload.order;
   }
 
-  async exportReport(type: DashboardExportType): Promise<{ blob: Blob; filename: string }> {
-    const response = await fetch(apiUrl(`/api/dashboard/export?type=${encodeURIComponent(type)}`), {
+  async exportReport(type: DashboardExportType, range: DashboardRange): Promise<{ blob: Blob; filename: string }> {
+    const response = await fetch(apiUrl(`/api/dashboard/export?type=${encodeURIComponent(type)}&range=${encodeURIComponent(range)}`), {
       credentials: 'include',
     });
 

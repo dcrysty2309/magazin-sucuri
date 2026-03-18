@@ -1,0 +1,66 @@
+.chart-card {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 1.25rem;
+  border: 1px solid rgba(90, 53, 40, 0.1);
+  border-radius: 20px;
+  background:
+    radial-gradient(circle at top right, rgba(255, 255, 255, 0.72), transparent 36%),
+    linear-gradient(180deg, rgba(255, 251, 244, 0.95), rgba(249, 242, 233, 0.92));
+  box-shadow: 0 20px 38px rgba(83, 58, 35, 0.08);
+}
+
+.chart-card--green {
+  background:
+    radial-gradient(circle at top right, rgba(94, 156, 99, 0.16), transparent 36%),
+    linear-gradient(180deg, rgba(255, 251, 244, 0.95), rgba(249, 242, 233, 0.92));
+}
+
+.chart-card--sky {
+  background:
+    radial-gradient(circle at top right, rgba(93, 135, 177, 0.18), transparent 36%),
+    linear-gradient(180deg, rgba(255, 251, 244, 0.95), rgba(249, 242, 233, 0.92));
+}
+
+.chart-card__header {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.chart-card__header h2 {
+  margin: 0.18rem 0 0.35rem;
+  color: var(--color-heading);
+}
+
+.chart-card__eyebrow,
+.chart-card__subtitle {
+  margin: 0;
+}
+
+.chart-card__eyebrow {
+  color: rgba(90, 53, 40, 0.62);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.chart-card__subtitle {
+  color: rgba(90, 53, 40, 0.7);
+}
+
+.chart-card__actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.chart-card__body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}

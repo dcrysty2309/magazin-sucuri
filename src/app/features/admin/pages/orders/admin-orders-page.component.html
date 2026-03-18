@@ -7,6 +7,10 @@
     </div>
   </div>
 
+  @if (toastMessage()) {
+    <div class="admin-card"><p>{{ toastMessage() }}</p></div>
+  }
+
   <div class="admin-card">
     @if (serverError()) {
       <p>{{ serverError() }}</p>
@@ -31,6 +35,9 @@
               <button type="button" (click)="updateStatus(order, 'In procesare')">Procesare</button>
               <button type="button" (click)="updateStatus(order, 'Livrata')">Livrata</button>
               <button type="button" class="is-secondary" (click)="openDetails(order)">Detalii</button>
+              <button type="button" class="is-secondary" [disabled]="deletingOrderId() === order.id" (click)="deleteOrder(order)">
+                {{ deletingOrderId() === order.id ? 'Se sterge...' : 'Sterge' }}
+              </button>
             </div>
           </div>
         }

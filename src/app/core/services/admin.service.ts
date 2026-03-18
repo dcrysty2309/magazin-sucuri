@@ -18,8 +18,8 @@ export class AdminService {
       : { ok: false, message: payload.message || 'Autentificarea admin a esuat.' };
   }
 
-  async getDashboard(): Promise<any> {
-    return this.get('/api/admin/dashboard');
+  async getDashboard(range: '7' | '30' | 'total' = '7'): Promise<any> {
+    return this.get(`/api/admin/dashboard?range=${encodeURIComponent(range)}`);
   }
 
   async getProducts(): Promise<any[]> {
@@ -61,6 +61,11 @@ export class AdminService {
     return payload.orders ?? [];
   }
 
+  async createOrder(data: any): Promise<any> {
+    const payload = await this.post('/api/admin/orders', data);
+    return payload.order;
+  }
+
   async getOrder(id: string): Promise<any> {
     const payload = await this.get(`/api/admin/orders/${id}`);
     return payload.order;
@@ -71,14 +76,32 @@ export class AdminService {
     return payload.order;
   }
 
+  async deleteOrder(id: string): Promise<{ message: string }> {
+    return this.delete(`/api/admin/orders/${id}`);
+  }
+
   async getCustomers(): Promise<any[]> {
     const payload = await this.get('/api/admin/customers');
     return payload.customers ?? [];
   }
 
+  async createCustomer(data: any): Promise<any> {
+    const payload = await this.post('/api/admin/customers', data);
+    return payload.customer;
+  }
+
   async getCustomer(id: string): Promise<any> {
     const payload = await this.get(`/api/admin/customers/${id}`);
     return payload.customer;
+  }
+
+  async updateCustomer(id: string, data: any): Promise<any> {
+    const payload = await this.patch(`/api/admin/customers/${id}`, data);
+    return payload.customer;
+  }
+
+  async deleteCustomer(id: string): Promise<{ message: string }> {
+    return this.delete(`/api/admin/customers/${id}`);
   }
 
   async getInventory(): Promise<any[]> {

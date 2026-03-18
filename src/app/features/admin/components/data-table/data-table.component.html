@@ -1,0 +1,35 @@
+<div class="data-table">
+  @if (loading) {
+    <div class="data-table__empty">Se incarca...</div>
+  } @else if (!rows.length) {
+    <div class="data-table__empty">{{ emptyMessage }}</div>
+  } @else {
+    <div class="data-table__head" [style.grid-template-columns]="gridTemplateColumns">
+      @for (column of columns; track column.key) {
+        <span [class.is-end]="column.align === 'end'">{{ column.label }}</span>
+      }
+      @if (actionTemplate) {
+        <span class="is-center">Actiuni</span>
+      }
+    </div>
+
+    @for (row of rows; track row.id || row.code || $index) {
+      <div class="data-table__row" [style.grid-template-columns]="gridTemplateColumns">
+        @for (column of columns; track column.key) {
+          <div class="data-table__cell" [class.is-end]="column.align === 'end'">
+            @if (column.kind === 'badge') {
+              <span class="data-table__badge">{{ formatCell(column, row) }}</span>
+            } @else {
+              {{ formatCell(column, row) }}
+            }
+          </div>
+        }
+        @if (actionTemplate) {
+          <div class="data-table__cell data-table__cell--actions is-center">
+            <ng-container *ngTemplateOutlet="actionTemplate; context: { $implicit: row }"></ng-container>
+          </div>
+        }
+      </div>
+    }
+  }
+</div>

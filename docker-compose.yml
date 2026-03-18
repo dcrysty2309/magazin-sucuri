@@ -35,6 +35,24 @@ services:
       ADMIN_PASSWORD: Admin123!
     ports:
       - '4300:4300'
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    container_name: magazin-sucuri-frontend
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_started
+    environment:
+      NODE_ENV: development
+    ports:
+      - '4200:4200'
+    volumes:
+      - .:/app
+      - frontend_node_modules:/app/node_modules
+    command: sh -lc "npm ci && npm run start:web:docker"
 
 volumes:
   postgres_data:
+  frontend_node_modules:

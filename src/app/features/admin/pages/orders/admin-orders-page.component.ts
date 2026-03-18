@@ -13,6 +13,8 @@ export class AdminOrdersPageComponent {
 
   readonly loading = signal(true);
   readonly serverError = signal('');
+  readonly toastMessage = signal('');
+  readonly deletingOrderId = signal('');
   readonly selectedOrder = signal<any | null>(null);
   readonly orders = signal<any[]>([]);
 
@@ -47,5 +49,23 @@ export class AdminOrdersPageComponent {
 
   closeDetails(): void {
     this.selectedOrder.set(null);
+  }
+
+  async deleteOrder(order: any): Promise<void> {
+    this.deletingOrderId.set(order.id);
+    this.serverError.set('');
+
+    try {
+      const result = await this.adminService.deleteOrder(order.id);
+      this.toastMessage.set(result.message);
+      this.orders.update((items) => items.filter((item) => item.id !== order.id));
+      if (this.selectedOrder()?.id === order.id) {
+        this.closeDetails();
+      }
+    } catch (error) {
+      this.serverError.set(error instanceof Error ? error.message : 'Nu am putut sterge comanda.');
+    } finally {
+      this.deletingOrderId.set('');
+    }
   }
 }

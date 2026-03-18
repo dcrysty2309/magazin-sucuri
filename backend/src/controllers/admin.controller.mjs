@@ -1,6 +1,10 @@
 import {
+  createAdminCustomer,
   createAdminCategory,
+  createAdminOrder,
   createAdminProduct,
+  deleteAdminCustomer,
+  deleteAdminOrder,
   deleteAdminProduct,
   exportDashboardReport,
   getAdminAnalytics,
@@ -21,6 +25,7 @@ import {
   getDashboardTopProducts,
   getStoreSettings,
   updateAdminOrder,
+  updateAdminCustomer,
   updateAdminPaymentsSettings,
   updateAdminProduct,
   updateAdminShippingSettings,
@@ -28,7 +33,7 @@ import {
 } from '../services/platform.service.mjs';
 
 export async function dashboard(req, res) {
-  res.status(200).json(await getAdminDashboard());
+  res.status(200).json(await getAdminDashboard(String(req.query.range || '7')));
 }
 
 export async function products(req, res) {
@@ -63,6 +68,10 @@ export async function orders(req, res) {
   res.status(200).json({ orders: await getAdminOrders() });
 }
 
+export async function createOrderAdmin(req, res) {
+  res.status(201).json({ order: await createAdminOrder(req.body) });
+}
+
 export async function order(req, res) {
   const orderData = await getAdminOrder(req.params.id);
   if (!orderData) {
@@ -75,8 +84,16 @@ export async function updateOrder(req, res) {
   res.status(200).json({ order: await updateAdminOrder(req.params.id, req.body) });
 }
 
+export async function removeOrder(req, res) {
+  res.status(200).json(await deleteAdminOrder(req.params.id));
+}
+
 export async function customers(req, res) {
   res.status(200).json({ customers: await getAdminCustomers() });
+}
+
+export async function createCustomer(req, res) {
+  res.status(201).json({ customer: await createAdminCustomer(req.body) });
 }
 
 export async function customer(req, res) {
@@ -85,6 +102,18 @@ export async function customer(req, res) {
     return res.status(404).json({ message: 'Clientul nu a fost gasit.' });
   }
   res.status(200).json({ customer: customerData });
+}
+
+export async function updateCustomer(req, res) {
+  const customerData = await updateAdminCustomer(req.params.id, req.body);
+  if (!customerData) {
+    return res.status(404).json({ message: 'Clientul nu a fost gasit.' });
+  }
+  res.status(200).json({ customer: customerData });
+}
+
+export async function removeCustomer(req, res) {
+  res.status(200).json(await deleteAdminCustomer(req.params.id));
 }
 
 export async function inventory(req, res) {
@@ -137,11 +166,12 @@ export async function dashboardTopProducts(req, res) {
 
 export async function dashboardExport(req, res) {
   const type = String(req.query.type || 'csv');
+  const range = String(req.query.range || '1');
   if (!['csv', 'excel', 'pdf'].includes(type)) {
     return res.status(400).json({ message: 'Tip export invalid.' });
   }
 
-  const report = await exportDashboardReport(type);
+  const report = await exportDashboardReport(type, range);
   res.setHeader('Content-Type', report.contentType);
   res.setHeader('Content-Disposition', `attachment; filename="${report.filename}"`);
   res.status(200).send(report.body);
