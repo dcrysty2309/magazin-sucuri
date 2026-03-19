@@ -128,6 +128,13 @@ CREATE TABLE IF NOT EXISTS order_items (
   line_total NUMERIC(10, 2) NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS store_settings (
+  id TEXT PRIMARY KEY,
+  settings JSONB NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL,
+  updated_at TIMESTAMPTZ NOT NULL
+);
+
 CREATE INDEX IF NOT EXISTS idx_users_email_verification_token ON users(email_verification_token);
 CREATE INDEX IF NOT EXISTS idx_users_password_reset_token ON users(password_reset_token);
 CREATE INDEX IF NOT EXISTS idx_sessions_user_id ON sessions(user_id);
@@ -141,3 +148,4 @@ CREATE INDEX IF NOT EXISTS idx_carts_user_id ON carts(user_id);
 CREATE INDEX IF NOT EXISTS idx_cart_items_cart_id ON cart_items(cart_id);
 CREATE INDEX IF NOT EXISTS idx_orders_user_id ON orders(user_id);
 CREATE INDEX IF NOT EXISTS idx_order_items_order_id ON order_items(order_id);
+CREATE INDEX IF NOT EXISTS idx_store_settings_updated_at ON store_settings(updated_at);

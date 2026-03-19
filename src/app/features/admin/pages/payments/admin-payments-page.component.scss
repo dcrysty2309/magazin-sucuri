@@ -1,0 +1,70 @@
+.admin-page {
+  gap: var(--admin-space-3);
+}
+
+.admin-payments__bar-title {
+  display: block;
+  color: var(--admin-color-text);
+  font-size: 0.98rem;
+  font-weight: 700;
+}
+
+.admin-payments__bar-copy {
+  margin: 6px 0 0;
+  color: var(--admin-color-text-muted);
+  max-width: 620px;
+}
+
+.payments-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.payment-card {
+  display: grid;
+  gap: 16px;
+}
+
+.payment-card h2 {
+  letter-spacing: -0.02em;
+}
+
+.payment-card--loading {
+  grid-column: 1 / -1;
+}
+
+.payment-card__toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 46px;
+  padding: 0 14px;
+  border-radius: 16px;
+  background: var(--admin-color-surface-muted);
+  border: 1px solid var(--admin-color-border);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.admin-toast {
+  padding: 14px 16px;
+  border-radius: 14px;
+  font-weight: 600;
+}
+
+.admin-toast--success {
+  background: var(--admin-color-success-soft);
+  color: var(--admin-color-success);
+}
+
+.admin-toast--error {
+  background: var(--admin-color-danger-soft);
+  color: var(--admin-color-danger);
+}
+
+@media (max-width: 960px) {
+  .payments-grid {
+    grid-template-columns: 1fr;
+  }
+}

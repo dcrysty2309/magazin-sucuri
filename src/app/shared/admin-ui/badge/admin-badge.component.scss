@@ -1,0 +1,55 @@
+.admin-ui-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 30px;
+  padding: 0 12px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  font-size: 0.79rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+
+.admin-ui-badge--info {
+  background: #eef4ff;
+  border-color: #c7d7fe;
+  color: #2563eb;
+}
+
+.admin-ui-badge--primary {
+  background: #2563eb;
+  border-color: #1d4ed8;
+  color: #ffffff;
+}
+
+.admin-ui-badge--indigo {
+  background: #f5f3ff;
+  border-color: #ddd6fe;
+  color: #6d28d9;
+}
+
+.admin-ui-badge--neutral {
+  background: #f3f4f6;
+  border-color: #e5e7eb;
+  color: #4b5563;
+}
+
+.admin-ui-badge--success {
+  background: #ecfdf3;
+  border-color: #abefc6;
+  color: #027a48;
+}
+
+.admin-ui-badge--warning {
+  background: var(--admin-color-warning-soft);
+  border-color: rgba(217, 119, 6, 0.16);
+  color: var(--admin-color-warning);
+}
+
+.admin-ui-badge--danger {
+  background: #fef3f2;
+  border-color: #fecdca;
+  color: #b42318;
+}

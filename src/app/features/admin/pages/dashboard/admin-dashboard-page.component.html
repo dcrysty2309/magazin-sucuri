@@ -1,48 +1,90 @@
 <section class="admin-page">
-  <div class="admin-page__header">
-    <p class="admin-page__eyebrow">Admin</p>
-    <h1>Dashboard</h1>
-    <p>O vedere rapida asupra comenzilor, clientilor si sanatatii magazinului.</p>
-  </div>
+  <app-admin-page-header
+    title="Dashboard"
+    description="Rezumat rapid pentru operatiunile de astazi."
+  >
+    <div page-actions class="dashboard-actions">
+      <a routerLink="/admin/produse" class="dashboard-link-action">
+        <app-admin-button variant="secondary">Adauga produs</app-admin-button>
+      </a>
+      <a routerLink="/admin/comenzi" class="dashboard-link-action">
+        <app-admin-button>Vezi comenzi</app-admin-button>
+      </a>
+    </div>
+  </app-admin-page-header>
 
   @if (serverError()) {
-    <div class="admin-card">
+    <app-admin-card>
       <p>{{ serverError() }}</p>
-    </div>
+    </app-admin-card>
   } @else {
     <div class="admin-stats">
-      @for (stat of stats(); track stat.label) {
-        <article class="admin-card admin-stat">
-          <span>{{ stat.label }}</span>
-          <strong>{{ stat.value }}</strong>
-          <small>{{ stat.detail }}</small>
-        </article>
-      }
+      <app-admin-stat-card
+        label="Comenzi azi"
+        [value]="'' + summary().ordersToday"
+        detail="plasate in cursul zilei"
+      />
+      <app-admin-stat-card
+        label="Venit azi"
+        [value]="summary().revenueToday + ' Lei'"
+        detail="valoarea comenzilor de astazi"
+      />
     </div>
 
-    <div class="admin-card">
-      <h2>Comenzi recente</h2>
+    <app-admin-card>
+      <div class="admin-section__header">
+        <h2>Comenzi recente</h2>
+        <a routerLink="/admin/comenzi">Vezi toate</a>
+      </div>
       @if (loading()) {
-        <p>Se incarca...</p>
+        <app-admin-loading-state message="Se incarca ultimele comenzi..." />
       } @else if (!recentOrders().length) {
-        <p>Nu exista comenzi inca.</p>
+        <app-admin-empty-state title="Nu exista comenzi" description="Primele comenzi vor aparea aici imediat ce sunt plasate." />
       } @else {
-        <div class="admin-list">
-          @for (order of recentOrders(); track order.code) {
-            <div class="admin-list__row">
-              <div>
-                <strong>{{ order.code }}</strong>
-                <p>{{ order.customerName }}</p>
-              </div>
-              <div>
-                <span>{{ order.status }}</span>
-                <strong>{{ order.total }} Lei</strong>
-                <p>{{ formatDate(order.createdAt) }}</p>
-              </div>
-            </div>
-          }
-        </div>
+        <app-admin-data-table>
+          <table class="dashboard-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Client</th>
+                <th>Total</th>
+                <th>Plata</th>
+                <th>Status</th>
+                <th>Actiune</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (order of recentOrders(); track order.id) {
+                <tr>
+                  <td>{{ order.code }}</td>
+                  <td class="dashboard-table__client">
+                    <strong>{{ order.customerName }}</strong>
+                    <p class="dashboard-table__client-email">{{ order.customerEmail }}</p>
+                    @if (order.customerPhone) {
+                      <p class="dashboard-table__client-phone">
+                        <span class="admin-material-icon" aria-hidden="true">call</span>
+                        <span>{{ order.customerPhone }}</span>
+                      </p>
+                    }
+                  </td>
+                  <td>{{ order.total }} Lei</td>
+                  <td>
+                    <app-admin-badge [tone]="paymentTone(order.paymentStatus)">
+                      {{ paymentLabel(order.paymentStatus) }}
+                    </app-admin-badge>
+                  </td>
+                  <td>
+                    <app-admin-badge [tone]="statusTone(order.status)">{{ displayStatus(order.status) }}</app-admin-badge>
+                  </td>
+                  <td class="dashboard-table__action">
+                    <a [routerLink]="['/admin/comenzi', order.id]">Vezi comanda</a>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </app-admin-data-table>
       }
-    </div>
+    </app-admin-card>
   }
 </section>

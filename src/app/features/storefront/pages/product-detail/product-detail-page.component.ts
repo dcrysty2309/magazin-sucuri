@@ -49,7 +49,7 @@ export class ProductDetailPageComponent {
       name: product.name,
       variant: product.subtitle,
       price: product.price,
-      image: product.images[0]?.url || '/images/homepage-hero.png',
+      image: product.images.length ? product.images[0].url : '/images/homepage-hero.png',
     });
   }
 

@@ -1,0 +1,73 @@
+<article
+  class="stat-card"
+  [class.stat-card--loading]="loading"
+  [class.stat-card--mock]="displayMetric.isMock"
+  [attr.aria-busy]="loading"
+  [attr.aria-labelledby]="loading ? null : titleId"
+  [attr.aria-describedby]="loading ? null : descriptionId">
+  @if (loading) {
+    <span class="stat-card__sr-only" aria-live="polite">Se incarca metrica.</span>
+    <div class="stat-card__skeleton stat-card__skeleton--title" aria-hidden="true"></div>
+    <div class="stat-card__skeleton stat-card__skeleton--value" aria-hidden="true"></div>
+    <div class="stat-card__skeleton stat-card__skeleton--change" aria-hidden="true"></div>
+    <div class="stat-card__skeleton stat-card__skeleton--chart" aria-hidden="true"></div>
+  } @else {
+    <div class="stat-card__header">
+      <div>
+        <p class="stat-card__title" [attr.id]="titleId">{{ displayMetric.label }}</p>
+        <strong class="stat-card__value">{{ formattedValue }}</strong>
+      </div>
+
+      <span class="stat-card__icon" [ngClass]="'stat-card__icon--' + displayMetric.accent" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+          @switch (displayMetric.icon) {
+            @case ('revenue') {
+              <path d="M4 7h16"></path>
+              <path d="M6 4h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z"></path>
+              <path d="M12 10v6"></path>
+              <path d="M9.5 13.5c.6 1 1.5 1.5 2.5 1.5s1.9-.5 2.5-1.5"></path>
+            }
+            @case ('users') {
+              <path d="M16 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2"></path>
+              <circle cx="9.5" cy="7" r="4"></circle>
+              <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            }
+            @case ('orders') {
+              <path d="M4 5h16"></path>
+              <path d="M6 3h12v18H6z"></path>
+              <path d="M9 9h6"></path>
+              <path d="M9 13h6"></path>
+              <path d="M9 17h4"></path>
+            }
+            @default {
+              <path d="M3 12s3.5-6 9-6 9 6 9 6-3.5 6-9 6-9-6-9-6z"></path>
+              <circle cx="12" cy="12" r="2.5"></circle>
+            }
+          }
+        </svg>
+      </span>
+    </div>
+
+    <div
+      class="stat-card__delta"
+      [class.stat-card__delta--up]="displayMetric.trend === 'up'"
+      [class.stat-card__delta--down]="displayMetric.trend === 'down'">
+      <span class="stat-card__delta-pill">{{ changeLabel }}</span>
+      <small [attr.id]="descriptionId">{{ displayMetric.description }}</small>
+    </div>
+
+    <div class="stat-card__chart">
+      <svg viewBox="0 0 284 92" preserveAspectRatio="none" role="img" [attr.aria-label]="chartLabel">
+        <defs>
+          <linearGradient [attr.id]="sparklineId" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="rgba(120, 134, 74, 0.42)"></stop>
+            <stop offset="100%" stop-color="rgba(120, 134, 74, 0)"></stop>
+          </linearGradient>
+        </defs>
+        <path class="stat-card__chart-area" [attr.d]="sparklineAreaPath" [attr.fill]="'url(#' + sparklineId + ')'"></path>
+        <path class="stat-card__chart-line" [attr.d]="sparklinePath"></path>
+      </svg>
+    </div>
+  }
+</article>

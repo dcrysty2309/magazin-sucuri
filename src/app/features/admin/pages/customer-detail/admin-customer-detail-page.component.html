@@ -1,0 +1,81 @@
+<section class="admin-page">
+  <app-admin-page-header
+    eyebrow="CRM"
+    title="Detaliu client"
+    description="Profil complet cu istoric de comenzi, total cheltuit si adrese salvate."
+  >
+    <a page-actions routerLink="/admin/clienti" class="admin-page__back">Inapoi la clienti</a>
+  </app-admin-page-header>
+
+  @if (serverError()) {
+    <app-admin-card><p>{{ serverError() }}</p></app-admin-card>
+  } @else if (loading()) {
+    <app-admin-card><app-admin-loading-state message="Se incarca clientul..." /></app-admin-card>
+  } @else if (customer()) {
+    <app-admin-action-bar>
+      <div>
+        <strong class="admin-customer-detail__bar-title">Profil client</strong>
+        <p class="admin-customer-detail__bar-copy">
+          Verifica rapid adresele, istoricul comenzilor si valoarea cumulata a relatiilor comerciale.
+        </p>
+      </div>
+    </app-admin-action-bar>
+
+    <div class="admin-grid">
+      <app-admin-card>
+        <h2>{{ customer()?.name }}</h2>
+        <div class="admin-meta">
+          <p>{{ customer()?.email }}</p>
+          <p>{{ customer()?.phone }}</p>
+          <app-admin-badge tone="neutral">{{ customer()?.ordersCount }} comenzi</app-admin-badge>
+          <strong>{{ customer()?.totalSpent }} Lei</strong>
+        </div>
+      </app-admin-card>
+
+      <app-admin-card>
+        <h2>Adrese</h2>
+        @if (!(customer()?.addresses?.length)) {
+          <app-admin-empty-state title="Fara adrese" description="Clientul nu are adrese salvate." />
+        } @else {
+          <div class="admin-list">
+            @for (address of customer()?.addresses ?? []; track address.id) {
+              <div class="admin-list__row">
+                <div>
+                  <strong>{{ address.label }}</strong>
+                  <p>{{ address.recipientName }}</p>
+                </div>
+                <div>
+                  <p>{{ address.line1 }}</p>
+                  <p>{{ address.city }}, {{ address.county }}</p>
+                  <p>{{ address.postalCode }}</p>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </app-admin-card>
+
+      <app-admin-card class="admin-card--wide">
+        <h2>Istoric comenzi</h2>
+        @if (!(customer()?.orders?.length)) {
+          <app-admin-empty-state title="Fara comenzi" description="Clientul nu are comenzi inregistrate." />
+        } @else {
+          <div class="admin-list">
+            @for (order of customer()?.orders ?? []; track order.id) {
+              <div class="admin-list__row">
+                <div>
+                  <strong>{{ order.code }}</strong>
+                  <p>{{ order.status }} / {{ order.paymentStatus }}</p>
+                </div>
+                <div>
+                  <strong>{{ order.total }} Lei</strong>
+                  <p>{{ order.createdAt | date:'mediumDate' }}</p>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </app-admin-card>
+    </div>
+  }
+</section>

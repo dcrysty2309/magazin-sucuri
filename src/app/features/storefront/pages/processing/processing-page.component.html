@@ -1,5 +1,122 @@
-<app-page-shell
-  eyebrow="Storefront"
-  title="Procesare fructe"
-  description="Aceasta pagina va explica procesul de selectie, presare, filtrare si ambalare. In Faza 1 ramane un placeholder."
-/>
+<section class="processing-hero">
+  <div class="processing-hero__inner">
+    <p class="processing-hero__eyebrow">Flux premium de productie</p>
+    <h1>Procesarea fructelor - de la livada la pahar</h1>
+    <p class="processing-hero__lead">
+      Exploreaza interactiv cum se face sucul de mere natural: de la livada si procesare suc de mere,
+      pana la ambalare, livrare si momentul final in care sucul de mere presat ajunge in pahar.
+    </p>
+  </div>
+</section>
+
+<main class="processing-page">
+  <section class="processing-viewer" #viewerSection aria-labelledby="processing-viewer-title" (wheel)="onViewerWheel($event)">
+    <div class="processing-viewer__header">
+      <div>
+        <p class="section-kicker">Experienta 3D interactiva</p>
+        <h2 id="processing-viewer-title">Navigheaza vizual fiecare etapa a procesarii fructelor</h2>
+      </div>
+
+      <div class="processing-viewer__controls">
+        <button type="button" class="viewer-button viewer-button--ghost" (click)="previousStage()">Etapa anterioara</button>
+        <button type="button" class="viewer-button" (click)="nextStage()">Etapa urmatoare</button>
+      </div>
+    </div>
+
+    <div class="processing-viewer__layout">
+      <article class="processing-viewer__canvas-card">
+        <div class="processing-viewer__meta">
+          <span>Scena 3D</span>
+          <small>Roteste, da zoom si foloseste scroll pentru a parcurge etapele.</small>
+        </div>
+
+        <div class="processing-viewer__canvas" #sceneHost aria-label="Scena 3D a procesarii fructelor">
+          @if (sceneError()) {
+            <div class="processing-viewer__fallback">
+              <strong>Scena 3D nu este disponibila.</strong>
+              <p>{{ sceneError() }}</p>
+            </div>
+          } @else if (!sceneReady()) {
+            <div class="processing-viewer__fallback">
+              <strong>Se pregateste scena 3D.</strong>
+              <p>Incarcam reprezentarea vizuala pentru etapa selectata.</p>
+            </div>
+          }
+        </div>
+
+        <div class="processing-progress" aria-hidden="true">
+          <div class="processing-progress__bar" [style.width.%]="progress()"></div>
+        </div>
+      </article>
+    </div>
+
+    <section class="processing-viewer__details">
+      <article class="processing-viewer__panel">
+        <p class="processing-viewer__step">Etapa {{ activeIndex() + 1 }} din {{ stages.length }}</p>
+        <h3>{{ activeStage().title }}</h3>
+        <p>{{ activeStage().description }}</p>
+        <p class="processing-viewer__seo">{{ activeStage().seoText }}</p>
+      </article>
+
+      <div class="processing-stage-list">
+        @for (stage of stages; track stage.id; let index = $index) {
+          <button
+            type="button"
+            class="processing-stage-list__item"
+            [class.is-active]="index === activeIndex()"
+            (click)="goToStage(index)"
+          >
+            <span>{{ stage.label }}</span>
+            <strong>{{ stage.title }}</strong>
+          </button>
+        }
+      </div>
+    </section>
+  </section>
+
+  <section class="processing-copy" aria-labelledby="processing-copy-title">
+    <div class="section-heading">
+      <p class="section-kicker">Cum se face sucul de mere</p>
+      <h2 id="processing-copy-title">Proces clar, ingrediente curate si control atent in fiecare etapa</h2>
+    </div>
+
+    <div class="processing-copy__grid">
+      <article class="processing-copy__card">
+        <h3>Suc de mere natural, construit pe simplitate</h3>
+        <p>
+          In magazinul nostru, procesarea fructelor nu este ascunsa in spatele unor termeni tehnici greu de urmarit.
+          Din contra, fiecare etapa este gandita pentru a pastra claritatea unui suc de mere natural, obtinut din
+          mere romanesti atent selectionate.
+        </p>
+      </article>
+
+      <article class="processing-copy__card">
+        <h3>Procesare suc de mere fara complicatii inutile</h3>
+        <p>
+          De la spalare si tocarea controlata, pana la presare, pasteurizare si ambalare, totul urmareste aceeasi
+          idee: un produs curat, coerent si usor de inteles pentru clientul final.
+        </p>
+      </article>
+
+      <article class="processing-copy__card">
+        <h3>Suc de mere presat, livrat in forme potrivite consumului real</h3>
+        <p>
+          Bag-in-Box-ul si sticla sunt alese pentru a proteja produsul si pentru a duce mai departe gustul autentic al
+          unui suc de mere 100% natural, pregatit pentru servire acasa, la birou sau in horeca.
+        </p>
+      </article>
+    </div>
+  </section>
+
+  <section class="processing-cta" aria-labelledby="processing-cta-title">
+    <div class="processing-cta__content">
+      <p class="section-kicker">Din proces direct in colectie</p>
+      <h2 id="processing-cta-title">Vezi produsele obtinute prin acest flux de procesare</h2>
+      <p>
+        Daca vrei sa alegi un suc de mere natural facut cu un proces clar si transparent, mergi mai departe catre
+        colectia noastra de produse.
+      </p>
+      <a class="processing-cta__button" routerLink="/produse">Vezi produsele</a>
+    </div>
+  </section>
+</main>

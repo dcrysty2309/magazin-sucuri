@@ -1,0 +1,32 @@
+.admin-loading-state {
+  display: grid;
+  gap: 10px;
+}
+
+.admin-loading-state__bar {
+  height: 14px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #eef2ff 25%, #f8fbff 50%, #eef2ff 75%);
+  background-size: 200% 100%;
+  animation: admin-loading-shimmer 1.4s linear infinite;
+}
+
+.admin-loading-state__bar--short {
+  width: 42%;
+}
+
+.admin-loading-state p {
+  margin: 0;
+  color: var(--admin-color-text-muted);
+  font-size: 0.92rem;
+}
+
+@keyframes admin-loading-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+
+  100% {
+    background-position: -200% 0;
+  }
+}

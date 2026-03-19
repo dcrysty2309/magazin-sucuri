@@ -1,0 +1,40 @@
+<button
+  type="button"
+  class="action-button"
+  [class.action-button--primary]="type === 'primary'"
+  [class.action-button--success]="type === 'success'"
+  [class.action-button--compact]="size === 'compact'"
+  [class.action-button--premium]="appearance === 'premium'"
+  [class.is-loading]="loading"
+  [class.is-expanded]="expanded"
+  [disabled]="disabled || loading"
+  [attr.title]="tooltip || null"
+  [attr.aria-label]="tooltip || label"
+  [attr.aria-busy]="loading"
+  (click)="handleClick()"
+>
+  <span class="action-button__glow" aria-hidden="true"></span>
+  <span class="action-button__tooltip" aria-hidden="true">{{ tooltip }}</span>
+
+  <span class="action-button__content">
+    <span class="action-button__icon" aria-hidden="true">
+      @if (loading) {
+        <span class="action-button__spinner"></span>
+      } @else {
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+          @if (icon === 'report') {
+            <path d="M3 3v18h18"></path>
+            <path d="M7 14l4-4 3 3 5-7"></path>
+            <path d="M17 6h2v2"></path>
+          } @else {
+            <path d="M12 3v11"></path>
+            <path d="M7 10l5 5 5-5"></path>
+            <path d="M5 19h14"></path>
+          }
+        </svg>
+      }
+    </span>
+
+    <span class="action-button__label">{{ label }}</span>
+  </span>
+</button>

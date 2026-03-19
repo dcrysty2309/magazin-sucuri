@@ -1,4 +1,5 @@
 .storefront-layout {
+  --storefront-header-offset: 88px;
   min-height: 100vh;
   display: grid;
   grid-template-rows: auto 1fr auto;
@@ -370,7 +371,7 @@ button.storefront-actions__icon {
 
 .storefront-main {
   width: 100%;
-  padding: 0 0 3rem;
+  padding: var(--storefront-header-offset) 0 3rem;
 }
 
 .storefront-mobile-account {
@@ -626,6 +627,10 @@ button.storefront-actions__icon {
 }
 
 @media (max-width: 1024px) {
+  .storefront-layout {
+    --storefront-header-offset: 72px;
+  }
+
   .storefront-header {
     min-height: 56px;
     background: rgb(230, 220, 201);
@@ -848,6 +853,10 @@ button.storefront-actions__icon {
 }
 
 @media (max-width: 800px) {
+  .storefront-layout {
+    --storefront-header-offset: 68px;
+  }
+
   .storefront-header,
   .storefront-footer {
     flex-direction: column;

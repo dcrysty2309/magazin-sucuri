@@ -1,25 +1,56 @@
-<div class="admin-layout">
-  <aside class="admin-sidebar">
-    <a class="admin-sidebar__brand" routerLink="/admin/dashboard">Livada Admin</a>
+<div class="admin-layout" [class.is-mobile-open]="mobileMenuOpen()">
+  <div class="admin-layout__backdrop" (click)="closeMobileMenu()"></div>
 
-    <nav aria-label="Navigatie admin">
-      @for (item of navigation; track item.route) {
-        <a [routerLink]="item.route" class="admin-sidebar__link" routerLinkActive="is-active">
-          {{ item.label }}
-        </a>
-      }
-    </nav>
+  <aside class="admin-sidebar">
+    <div class="admin-sidebar__header">
+      <a class="admin-sidebar__heading" routerLink="/admin/dashboard" (click)="closeMobileMenu()">
+        <strong>Panou administrare</strong>
+        <small>Gestionare magazin</small>
+      </a>
+    </div>
+
+    <section class="admin-sidebar__section">
+      <nav class="admin-sidebar__nav" aria-label="Navigatie principala admin">
+        @for (item of navigation; track item.route) {
+          <a [routerLink]="item.route" class="admin-sidebar__link" routerLinkActive="is-active" (click)="closeMobileMenu()">
+            <span class="admin-sidebar__pill" aria-hidden="true">
+              @switch (item.icon) {
+                @case ('dashboard') { <span class="admin-material-icon">query_stats</span> }
+                @case ('products') { <span class="admin-material-icon">inventory_2</span> }
+                @case ('orders') { <span class="admin-material-icon">receipt_long</span> }
+                @case ('inventory') { <span class="admin-material-icon">stacked_bar_chart</span> }
+                @case ('customers') { <span class="admin-material-icon">group</span> }
+                @case ('shipping') { <span class="admin-material-icon">local_shipping</span> }
+                @case ('payments') { <span class="admin-material-icon">credit_card</span> }
+              }
+            </span>
+            <span class="admin-sidebar__link-copy">
+              <strong>{{ item.label }}</strong>
+            </span>
+          </a>
+        }
+      </nav>
+    </section>
   </aside>
 
   <div class="admin-content">
     <header class="admin-topbar">
-      <div>
-        <p class="admin-topbar__eyebrow">Panou de administrare</p>
-        <strong>{{ auth.displayName() || 'Administrator' }}</strong>
+      <div class="admin-topbar__left">
+        <button type="button" class="admin-topbar__menu" (click)="toggleMobileMenu()">
+          <span class="admin-material-icon" aria-hidden="true">menu</span>
+        </button>
+        <div class="admin-topbar__context">
+          <p class="admin-topbar__eyebrow">Admin</p>
+          <strong>Magazin sucuri</strong>
+        </div>
       </div>
+
       <div class="admin-topbar__actions">
-        <a routerLink="/">Vezi storefront</a>
-        <button type="button" (click)="logout()">Logout</button>
+        <a routerLink="/">
+          <span class="admin-material-icon" aria-hidden="true">storefront</span>
+          <span>Storefront</span>
+        </a>
+        <button type="button" class="admin-topbar__logout" (click)="logout()">Logout</button>
       </div>
     </header>
 

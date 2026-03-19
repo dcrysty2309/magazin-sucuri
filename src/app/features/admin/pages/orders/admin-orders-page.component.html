@@ -1,29 +1,55 @@
 <section class="admin-page">
-  <div class="admin-page__header">
-    <p class="admin-page__eyebrow">Admin</p>
-    <h1>Comenzi</h1>
-    <p>Urmareste comenzile plasate din checkout si actualizeaza statusul operational.</p>
-  </div>
+  <app-admin-page-header
+    eyebrow="Vanzari"
+    title="Comenzi"
+    description="Lista operationala pentru comenzi noi, pregatire, expediere si livrare."
+  />
 
-  <div class="admin-card">
-    @if (!orders().length) {
-      <p>Nu exista comenzi inca.</p>
+  <app-admin-action-bar>
+    <div>
+      <strong class="admin-orders__bar-title">Flux operational</strong>
+      <p class="admin-orders__bar-copy">Actualizeaza statusurile direct din lista sau deschide comanda pentru context complet.</p>
+    </div>
+  </app-admin-action-bar>
+
+  <app-admin-card>
+    @if (serverError()) {
+      <p>{{ serverError() }}</p>
+    } @else if (loading()) {
+      <app-admin-loading-state message="Se incarca comenzile..." />
+    } @else if (!orders().length) {
+      <app-admin-empty-state title="Nu exista comenzi" description="Primele comenzi apar aici imediat ce sunt plasate." />
     } @else {
-      <div class="admin-list">
+      <app-admin-data-table>
+        <div class="admin-orders__head">
+          <span>Comanda</span>
+          <span>Status</span>
+          <span>Total</span>
+          <span>Actiuni</span>
+        </div>
+
         @for (order of orders(); track order.id) {
-          <div class="admin-list__row">
-            <div>
+          <div class="admin-orders__row">
+            <div class="admin-orders__identity">
               <strong>{{ order.code }}</strong>
               <p>{{ order.customerName }} · {{ order.customerEmail }}</p>
             </div>
-            <div>
-              <span>{{ order.status }} / {{ order.paymentStatus }}</span>
+            <div class="admin-orders__status">
+              <app-admin-badge [tone]="statusTone(order.status)">{{ displayStatus(order.status) }}</app-admin-badge>
+              <span>{{ order.paymentStatus }}</span>
+            </div>
+            <div class="admin-orders__total">
               <strong>{{ order.total }} Lei</strong>
             </div>
-            <button type="button" (click)="markShipped(order)">Marcheaza in livrare</button>
+            <div class="admin-orders__actions">
+              @for (status of statuses; track status) {
+                <app-admin-button size="small" (click)="updateStatus(order, status)">{{ status }}</app-admin-button>
+              }
+              <a [routerLink]="['/admin/comenzi', order.id]" class="admin-orders__link">Detalii</a>
+            </div>
           </div>
         }
-      </div>
+      </app-admin-data-table>
     }
-  </div>
+  </app-admin-card>
 </section>

@@ -1,0 +1,20 @@
+<article class="chart-card" [ngClass]="'chart-card--' + accent">
+  <header class="chart-card__header">
+    <div>
+      @if (eyebrow) {
+        <p class="chart-card__eyebrow">{{ eyebrow }}</p>
+      }
+      <h2>{{ title }}</h2>
+      @if (subtitle) {
+        <p class="chart-card__subtitle">{{ subtitle }}</p>
+      }
+    </div>
+    <div class="chart-card__actions">
+      <ng-content select="[card-actions]"></ng-content>
+    </div>
+  </header>
+
+  <div class="chart-card__body">
+    <ng-content></ng-content>
+  </div>
+</article>

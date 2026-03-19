@@ -1,15 +1,28 @@
 <section class="admin-page">
-  <div class="admin-page__header">
-    <p class="admin-page__eyebrow">Admin</p>
-    <h1>Clienti</h1>
-    <p>Clientii inregistrati si valoarea cumulata a comenzilor plasate.</p>
-  </div>
+  <app-admin-page-header
+    eyebrow="CRM"
+    title="Clienti"
+    description="Lista clientilor si valoarea cumulata a comenzilor lor."
+  />
 
-  <div class="admin-card">
-    @if (!customers().length) {
-      <p>Nu exista clienti inregistrati inca.</p>
+  <app-admin-action-bar>
+    <div>
+      <strong class="admin-customers__bar-title">Relatie clienti</strong>
+      <p class="admin-customers__bar-copy">
+        Vezi rapid cine comanda recurent, cat a cheltuit si intra in profil pentru istoricul complet.
+      </p>
+    </div>
+  </app-admin-action-bar>
+
+  <app-admin-card>
+    @if (serverError()) {
+      <p>{{ serverError() }}</p>
+    } @else if (loading()) {
+      <app-admin-loading-state message="Se incarca lista de clienti..." />
+    } @else if (!customers().length) {
+      <app-admin-empty-state title="Nu exista clienti" description="Clientii vor aparea aici dupa primele comenzi sau conturi create." />
     } @else {
-      <div class="admin-list">
+      <app-admin-data-table>
         @for (customer of customers(); track customer.id) {
           <div class="admin-list__row">
             <div>
@@ -17,12 +30,13 @@
               <p>{{ customer.email }}</p>
             </div>
             <div>
-              <span>{{ customer.ordersCount }} comenzi</span>
+              <app-admin-badge tone="neutral">{{ customer.ordersCount }} comenzi</app-admin-badge>
               <strong>{{ customer.totalSpent }} Lei</strong>
             </div>
+            <a [routerLink]="['/admin/clienti', customer.id]" class="admin-list__link">Detalii</a>
           </div>
         }
-      </div>
+      </app-admin-data-table>
     }
-  </div>
+  </app-admin-card>
 </section>

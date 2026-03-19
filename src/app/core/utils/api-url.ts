@@ -1,6 +1,10 @@
-export function apiUrl(path: string): string {
-  const normalizedPath = path.startsWith('/') ? path : `/${path}`;
-  const { protocol, hostname } = window.location;
+import { environment } from '../../../environments/environment';
 
-  return `${protocol}//${hostname}:4300${normalizedPath}`;
+export function apiUrl(path: string): string {
+  if (/^https?:\/\//.test(path)) {
+    return path;
+  }
+
+  const normalizedPath = path.startsWith('/') ? path : `/${path}`;
+  return `${environment.apiBaseUrl}${normalizedPath}`;
 }

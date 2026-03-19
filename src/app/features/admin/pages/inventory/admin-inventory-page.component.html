@@ -1,24 +1,71 @@
 <section class="admin-page">
-  <div class="admin-page__header">
-    <p class="admin-page__eyebrow">Admin</p>
-    <h1>Stoc</h1>
-    <p>Monitorizare rapida pentru produsele cu stoc redus.</p>
-  </div>
+  <app-admin-page-header
+    eyebrow="Operatiuni"
+    title="Stoc"
+    description="Monitorizare rapida pentru produsele cu stoc redus si starea lor in storefront."
+  />
 
-  <div class="admin-card">
-    <div class="admin-list">
-      @for (item of items(); track item.id) {
-        <div class="admin-list__row">
-          <div>
-            <strong>{{ item.name }}</strong>
-            <p>{{ item.sku }}</p>
-          </div>
-          <div>
-            <span>{{ item.isActive ? 'Activ' : 'Inactiv' }}</span>
-            <strong>{{ item.stockQuantity }} buc</strong>
-          </div>
-        </div>
-      }
+  <app-admin-action-bar>
+    <div>
+      <strong class="admin-inventory__bar-title">Control stoc</strong>
+      <p class="admin-inventory__bar-copy">
+        Verifica rapid disponibilitatea din catalog si ajusteaza cantitatile fara sa iesi din listare.
+      </p>
     </div>
-  </div>
+  </app-admin-action-bar>
+
+  @if (toastMessage()) {
+    <div class="admin-feedback admin-feedback--success">{{ toastMessage() }}</div>
+  }
+
+  <app-admin-card>
+    @if (serverError() && !editingItem()) {
+      <p>{{ serverError() }}</p>
+    } @else if (loading()) {
+      <app-admin-loading-state message="Se incarca stocul..." />
+    } @else if (!items().length) {
+      <app-admin-empty-state title="Nu exista produse in stoc" description="Produsele vor aparea aici imediat ce exista in catalog." />
+    } @else {
+      <app-admin-data-table>
+        @for (item of items(); track item.id) {
+          <div class="admin-list__row">
+            <div>
+              <strong>{{ item.name }}</strong>
+              <p>{{ item.sku }}</p>
+            </div>
+            <div class="admin-list__meta">
+              <app-admin-badge [tone]="item.isActive ? 'success' : 'neutral'">
+                {{ item.isActive ? 'Activ' : 'Inactiv' }}
+              </app-admin-badge>
+              <app-admin-badge [tone]="stockTone(item.stockQuantity)">{{ item.stockQuantity }} buc</app-admin-badge>
+              <app-admin-button size="small" (click)="openEdit(item)">Actualizeaza</app-admin-button>
+            </div>
+          </div>
+        }
+      </app-admin-data-table>
+    }
+  </app-admin-card>
+
+  @if (editingItem(); as item) {
+    <app-admin-dialog (closed)="closeEdit()">
+      <div class="admin-stock-dialog">
+        <p class="admin-page__eyebrow">Actualizare stoc</p>
+        <h2>{{ item.name }}</h2>
+        <p>Introdu noua cantitate disponibila pentru acest produs.</p>
+
+        <input appAdminInput type="number" min="0" [value]="editStockValue()" (input)="onStockInput($event)" />
+
+        @if (serverError()) {
+          <p class="admin-stock-dialog__error">{{ serverError() }}</p>
+        }
+
+        <div class="admin-stock-dialog__actions">
+          <app-admin-button (click)="closeEdit()">Renunta</app-admin-button>
+          <app-admin-button variant="primary" [disabled]="saving()" (click)="saveStock()">
+            {{ saving() ? 'Se salveaza...' : 'Salveaza stocul' }}
+          </app-admin-button>
+        </div>
+      </div>
+    </app-admin-dialog>
+  }
 </section>

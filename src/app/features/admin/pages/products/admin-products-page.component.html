@@ -1,31 +1,53 @@
 <section class="admin-page">
-  <div class="admin-page__header">
-    <div>
-      <p class="admin-page__eyebrow">Admin</p>
-      <h1>Produse</h1>
-      <p>Tabel complet cu produse, SKU, stare, stoc si actiuni de editare.</p>
+  <app-admin-page-header
+    eyebrow="Catalog"
+    title="Produse"
+    description="Tabelul principal pentru produse active, stoc si actiuni CRUD esentiale pentru MVP."
+  >
+    <a page-actions class="admin-page__cta" routerLink="/admin/produse/nou">Adauga produs</a>
+  </app-admin-page-header>
+
+  <app-admin-action-bar>
+    <div class="admin-toolbar">
+      <label>
+        <span>Cauta dupa nume, SKU sau categorie</span>
+        <input
+          appAdminInput
+          [formControl]="filtersForm.controls.query"
+          type="text"
+          placeholder="Ex: mere, LN-MER-5L, Mixuri"
+        />
+      </label>
+      <label>
+        <span>Tip produs</span>
+        <select appAdminSelect [formControl]="filtersForm.controls.type">
+          <option value="all">Toate</option>
+          <option value="1L">1L</option>
+          <option value="3L">3L</option>
+          <option value="5L">5L</option>
+          <option value="750ml">750ml</option>
+          <option value="3 x 330ml">Pachet degustare</option>
+        </select>
+      </label>
     </div>
-    <a class="admin-page__cta" routerLink="/admin/produse/nou">Adauga produs</a>
-  </div>
+  </app-admin-action-bar>
 
-  <div class="admin-card admin-toolbar">
-    <label>
-      <span>Cauta dupa nume, SKU sau categorie</span>
-      <input [formControl]="filtersForm.controls.query" type="text" placeholder="Ex: mere, LN-MER-5L, Mixuri" />
-    </label>
-  </div>
+  @if (toastMessage()) {
+    <div class="admin-feedback admin-feedback--success">{{ toastMessage() }}</div>
+  }
 
-  <div class="admin-card">
+  <app-admin-card>
     @if (serverError()) {
       <p>{{ serverError() }}</p>
     } @else if (loading()) {
-      <p>Se incarca produsele...</p>
+      <app-admin-loading-state message="Se incarca produsele..." />
     } @else {
-      <div class="admin-table">
+      <app-admin-data-table>
         <div class="admin-table__head">
           <span>Produs</span>
           <span>SKU</span>
           <span>Categorie</span>
+          <span>Tip</span>
           <span>Pret</span>
           <span>Stoc</span>
           <span>Status</span>
@@ -40,24 +62,46 @@
             </div>
             <div class="admin-table__cell">{{ product.sku }}</div>
             <div class="admin-table__cell">{{ product.categoryName }}</div>
+            <div class="admin-table__cell">{{ product.volumeLabel }}</div>
             <div class="admin-table__cell">{{ product.price }} Lei</div>
             <div class="admin-table__cell">{{ product.stockQuantity }}</div>
             <div class="admin-table__cell">
-              <span class="admin-status" [class.is-active]="product.isActive">{{ product.isActive ? 'Activ' : 'Inactiv' }}</span>
+              <app-admin-badge [tone]="product.isActive ? 'success' : 'neutral'">
+                {{ product.isActive ? 'Activ' : 'Inactiv' }}
+              </app-admin-badge>
             </div>
             <div class="admin-table__cell admin-table__cell--actions">
               <a [routerLink]="['/admin/produse', product.id]">Editeaza</a>
-              <button type="button" (click)="toggleProduct(product)">{{ product.isActive ? 'Opreste' : 'Activeaza' }}</button>
+              <app-admin-button size="small" (click)="toggleProduct(product)">
+                {{ product.isActive ? 'Opreste' : 'Activeaza' }}
+              </app-admin-button>
+              <app-admin-button size="small" variant="danger" (click)="requestDelete(product)">Sterge</app-admin-button>
             </div>
           </div>
         }
-      </div>
+      </app-admin-data-table>
 
       <div class="admin-pagination">
-        <button type="button" (click)="goToPage(currentPage() - 1)">Anterior</button>
+        <app-admin-button size="small" (click)="goToPage(currentPage() - 1)">Anterior</app-admin-button>
         <span>Pagina {{ currentPage() }} din {{ totalPages() }}</span>
-        <button type="button" (click)="goToPage(currentPage() + 1)">Urmator</button>
+        <app-admin-button size="small" (click)="goToPage(currentPage() + 1)">Urmator</app-admin-button>
       </div>
     }
-  </div>
+  </app-admin-card>
+
+  @if (pendingDeleteProduct(); as product) {
+    <app-admin-dialog (closed)="cancelDelete()">
+      <div class="admin-modal__dialog">
+        <p class="admin-page__eyebrow">Confirmare</p>
+        <h2>Stergi produsul?</h2>
+        <p>{{ product.name }} va fi eliminat din catalogul admin.</p>
+        <div class="admin-modal__actions">
+          <app-admin-button (click)="cancelDelete()">Renunta</app-admin-button>
+          <app-admin-button variant="danger" (click)="confirmDelete()" [disabled]="deletingProductId() === product.id">
+            {{ deletingProductId() === product.id ? 'Se sterge...' : 'Sterge produsul' }}
+          </app-admin-button>
+        </div>
+      </div>
+    </app-admin-dialog>
+  }
 </section>
