@@ -1,18 +1,34 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 
-import { AdminService } from '../../../../core/services/admin.service';
+import { AdminActionBarComponent } from '../../../../shared/admin-ui/action-bar/admin-action-bar.component';
+import { AdminButtonComponent } from '../../../../shared/admin-ui/button/admin-button.component';
+import { AdminCardComponent } from '../../../../shared/admin-ui/card/admin-card.component';
+import { AdminFormFieldComponent } from '../../../../shared/admin-ui/form-field/admin-form-field.component';
+import { AdminInputDirective } from '../../../../shared/admin-ui/input/admin-input.directive';
+import { AdminLoadingStateComponent } from '../../../../shared/admin-ui/loading-state/admin-loading-state.component';
+import { AdminPageHeaderComponent } from '../../../../shared/admin-ui/page-header/admin-page-header.component';
+import { AdminShippingService } from '../../services/admin-shipping.service';
 
 @Component({
   selector: 'app-admin-shipping-page',
   standalone: true,
-  imports: [ReactiveFormsModule],
+  imports: [
+    ReactiveFormsModule,
+    AdminActionBarComponent,
+    AdminButtonComponent,
+    AdminCardComponent,
+    AdminFormFieldComponent,
+    AdminInputDirective,
+    AdminLoadingStateComponent,
+    AdminPageHeaderComponent,
+  ],
   templateUrl: './admin-shipping-page.component.html',
   styleUrl: './admin-shipping-page.component.scss',
 })
 export class AdminShippingPageComponent {
   private readonly fb = inject(FormBuilder);
-  private readonly adminService = inject(AdminService);
+  private readonly shippingService = inject(AdminShippingService);
 
   readonly loading = signal(true);
   readonly saving = signal(false);
@@ -53,7 +69,7 @@ export class AdminShippingPageComponent {
     this.serverError.set('');
 
     try {
-      const settings = await this.adminService.getShippingSettings();
+      const settings = await this.shippingService.getSettings();
       this.form.patchValue({
         cost: settings.shipping.cost,
         freeThreshold: settings.shipping.freeThreshold,
@@ -91,7 +107,7 @@ export class AdminShippingPageComponent {
     this.serverError.set('');
 
     try {
-      await this.adminService.updateShippingSettings({
+      await this.shippingService.updateSettings({
         shipping: {
           cost: this.form.controls.cost.value,
           freeThreshold: this.form.controls.freeThreshold.value,

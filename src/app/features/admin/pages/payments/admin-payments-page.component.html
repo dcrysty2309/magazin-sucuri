@@ -1,14 +1,22 @@
 <section class="admin-page">
-  <div class="admin-page__header">
-    <div>
-      <p class="admin-page__eyebrow">Finance</p>
-      <h1>Plati</h1>
-      <p>Gestioneaza metodele de plata afisate clientilor si configureaza mixul dintre online si offline.</p>
-    </div>
-    <button type="button" (click)="save()" [disabled]="saving() || !hasChanges()">
+  <app-admin-page-header
+    eyebrow="Plati"
+    title="Metode de plata"
+    description="Activeaza doar metodele de plata relevante pentru MVP."
+  >
+    <app-admin-button page-actions variant="primary" (click)="save()" [disabled]="saving() || !hasChanges()">
       {{ saving() ? 'Se salveaza...' : 'Salveaza platile' }}
-    </button>
-  </div>
+    </app-admin-button>
+  </app-admin-page-header>
+
+  <app-admin-action-bar>
+    <div>
+      <strong class="admin-payments__bar-title">Checkout simplificat</strong>
+      <p class="admin-payments__bar-copy">
+        Pastreaza doar metodele de plata pe care le poti opera sigur in MVP si evita optiunile nevalidate.
+      </p>
+    </div>
+  </app-admin-action-bar>
 
   @if (toastMessage()) {
     <div class="admin-toast admin-toast--success">{{ toastMessage() }}</div>
@@ -18,34 +26,40 @@
   }
 
   <div class="payments-grid" [formGroup]="form">
-    <article class="admin-card payment-card">
-      <span class="payment-card__badge">Offline</span>
-      <h2>Ramburs</h2>
-      <p>Plata la primirea coletului, buna pentru clienti recurenti sau comenzi telefonice.</p>
-      <label class="payment-card__toggle">
-        <input formControlName="cashOnDelivery" type="checkbox" />
-        <span>{{ form.controls.cashOnDelivery.value ? 'Activ' : 'Inactiv' }}</span>
-      </label>
-    </article>
+    @if (loading()) {
+      <app-admin-card class="payment-card payment-card--loading">
+        <app-admin-loading-state message="Se incarca metodele de plata..." />
+      </app-admin-card>
+    } @else {
+      <app-admin-card class="payment-card">
+        <app-admin-badge tone="neutral">Offline</app-admin-badge>
+        <h2>Ramburs</h2>
+        <p>Plata la primirea coletului, buna pentru clienti recurenti sau comenzi telefonice.</p>
+        <label class="payment-card__toggle">
+          <input formControlName="cashOnDelivery" type="checkbox" />
+          <span>{{ form.controls.cashOnDelivery.value ? 'Activ' : 'Inactiv' }}</span>
+        </label>
+      </app-admin-card>
 
-    <article class="admin-card payment-card">
-      <span class="payment-card__badge">Online</span>
-      <h2>Card online</h2>
-      <p>Pregatit pentru integrare cu procesatorul tau de plati atunci cand backendul este conectat.</p>
-      <label class="payment-card__toggle">
-        <input formControlName="onlineCard" type="checkbox" />
-        <span>{{ form.controls.onlineCard.value ? 'Activ' : 'Inactiv' }}</span>
-      </label>
-    </article>
+      <app-admin-card class="payment-card">
+        <app-admin-badge tone="warning">Online</app-admin-badge>
+        <h2>Card online</h2>
+        <p>Pregatit pentru integrare cu procesatorul tau de plati atunci cand backendul este conectat.</p>
+        <label class="payment-card__toggle">
+          <input formControlName="onlineCard" type="checkbox" />
+          <span>{{ form.controls.onlineCard.value ? 'Activ' : 'Inactiv' }}</span>
+        </label>
+      </app-admin-card>
 
-    <article class="admin-card payment-card">
-      <span class="payment-card__badge">B2B</span>
-      <h2>Transfer bancar</h2>
-      <p>Util pentru comenzi corporate si reconfirmari manuale de plata inainte de livrare.</p>
-      <label class="payment-card__toggle">
-        <input formControlName="bankTransfer" type="checkbox" />
-        <span>{{ form.controls.bankTransfer.value ? 'Activ' : 'Inactiv' }}</span>
-      </label>
-    </article>
+      <app-admin-card class="payment-card">
+        <app-admin-badge tone="success">B2B</app-admin-badge>
+        <h2>Transfer bancar</h2>
+        <p>Util pentru comenzi corporate si reconfirmari manuale de plata inainte de livrare.</p>
+        <label class="payment-card__toggle">
+          <input formControlName="bankTransfer" type="checkbox" />
+          <span>{{ form.controls.bankTransfer.value ? 'Activ' : 'Inactiv' }}</span>
+        </label>
+      </app-admin-card>
+    }
   </div>
 </section>

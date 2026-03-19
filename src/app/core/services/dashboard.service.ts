@@ -2,41 +2,24 @@ import { Injectable } from '@angular/core';
 
 import { apiUrl } from '../utils/api-url';
 
-export type DashboardRange = '1' | '7' | '30' | 'total';
+export type DashboardRange = '7' | '30';
 export type DashboardExportType = 'csv' | 'excel' | 'pdf';
-export type DashboardOrderStatus = 'Noua' | 'In pregatire' | 'In livrare' | 'Livrata';
-export type DashboardMetricUnit = 'currency' | 'number';
-export type DashboardMetricTrend = 'up' | 'down' | 'neutral';
-
-export interface DashboardKpiHistoryPoint {
-  label: string;
-  value: number;
-}
-
-export interface DashboardKpiMetric {
-  id: 'revenue' | 'users' | 'orders' | 'pageViews';
-  label: string;
-  value: number;
-  unit: DashboardMetricUnit;
-  changePct: number;
-  trend: DashboardMetricTrend;
-  history: DashboardKpiHistoryPoint[];
-  description: string;
-  isMock?: boolean;
-}
-
-export interface DashboardStatsResponse {
-  stats: Array<{ label: string; value: string; detail: string }>;
-  kpis: DashboardKpiMetric[];
+export type DashboardOrderStatus = 'Noua' | 'In pregatire' | 'In curs de expediere' | 'Livrata' | 'Anulata';
+export interface DashboardSummary {
+  ordersToday: number;
+  revenueToday: number;
 }
 
 @Injectable({ providedIn: 'root' })
 export class DashboardService {
-  async getStats(): Promise<DashboardStatsResponse> {
+  async getStats(): Promise<{ summary: DashboardSummary; stats: any[] }> {
     const payload = await this.get('/api/dashboard/stats');
     return {
+      summary: {
+        ordersToday: Number(payload.summary?.ordersToday ?? 0),
+        revenueToday: Number(payload.summary?.revenueToday ?? 0),
+      },
       stats: payload.stats ?? [],
-      kpis: payload.kpis ?? [],
     };
   }
 
@@ -60,8 +43,8 @@ export class DashboardService {
     return payload.order;
   }
 
-  async exportReport(type: DashboardExportType, range: DashboardRange): Promise<{ blob: Blob; filename: string }> {
-    const response = await fetch(apiUrl(`/api/dashboard/export?type=${encodeURIComponent(type)}&range=${encodeURIComponent(range)}`), {
+  async exportReport(type: DashboardExportType): Promise<{ blob: Blob; filename: string }> {
+    const response = await fetch(apiUrl(`/api/dashboard/export?type=${encodeURIComponent(type)}`), {
       credentials: 'include',
     });
 

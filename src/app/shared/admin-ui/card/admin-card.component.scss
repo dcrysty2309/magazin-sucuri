@@ -1,0 +1,14 @@
+.admin-ui-card {
+  display: grid;
+  gap: var(--admin-space-2);
+  padding: var(--admin-space-3);
+  background: var(--admin-color-surface);
+  border: 1px solid var(--admin-color-border);
+  border-radius: var(--admin-radius-lg);
+  box-shadow: var(--admin-shadow-sm);
+}
+
+.admin-ui-card--compact {
+  padding: var(--admin-space-2);
+  border-radius: var(--admin-radius-md);
+}

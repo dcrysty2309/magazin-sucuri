@@ -1,14 +1,22 @@
 <section class="admin-page">
-  <div class="admin-page__header">
-    <div>
-      <p class="admin-page__eyebrow">Operations</p>
-      <h1>Livrare</h1>
-      <p>Configureaza costul standard, pragul de transport gratuit si ariile acoperite pentru comenzile online.</p>
-    </div>
-    <button type="button" (click)="save()" [disabled]="form.invalid || saving() || !hasChanges()">
+  <app-admin-page-header
+    eyebrow="Operatiuni"
+    title="Livrare"
+    description="Configureaza costul standard, pragul de transport gratuit si zonele de livrare active."
+  >
+    <app-admin-button page-actions variant="primary" (click)="save()" [disabled]="form.invalid || saving() || !hasChanges()">
       {{ saving() ? 'Se salveaza...' : 'Salveaza livrarea' }}
-    </button>
-  </div>
+    </app-admin-button>
+  </app-admin-page-header>
+
+  <app-admin-action-bar>
+    <div>
+      <strong class="admin-shipping__bar-title">Configurare operationala</strong>
+      <p class="admin-shipping__bar-copy">
+        Pastreaza regulile de livrare simple: cost standard, prag gratuit si zone active cu ETA clar.
+      </p>
+    </div>
+  </app-admin-action-bar>
 
   @if (toastMessage()) {
     <div class="admin-toast admin-toast--success">{{ toastMessage() }}</div>
@@ -18,56 +26,68 @@
   }
 
   <div class="admin-grid" [formGroup]="form">
-    <section class="admin-card">
+    <app-admin-card>
       <h2>Reguli de livrare</h2>
       @if (loading()) {
-        <p>Se incarca configurarea...</p>
+        <app-admin-loading-state message="Se incarca configurarea..." />
       } @else {
         <div class="admin-form-grid">
-          <label><span>Cost livrare</span><input formControlName="cost" type="number" min="0" /></label>
-          <label><span>Prag gratuit</span><input formControlName="freeThreshold" type="number" min="0" /></label>
+          <app-admin-form-field label="Cost livrare">
+            <input appAdminInput formControlName="cost" type="number" min="0" />
+          </app-admin-form-field>
+          <app-admin-form-field label="Prag gratuit">
+            <input appAdminInput formControlName="freeThreshold" type="number" min="0" />
+          </app-admin-form-field>
           <label class="admin-toggle">
             <input formControlName="enabled" type="checkbox" />
             <span>Livrare activa pentru checkout</span>
           </label>
         </div>
       }
-    </section>
+    </app-admin-card>
 
-    <section class="admin-card">
+    <app-admin-card>
       <h2>Hub logistic</h2>
-      <div class="admin-form-grid">
-        <label><span>Nume depozit</span><input formControlName="warehouseName" type="text" /></label>
-        <label><span>Oras</span><input formControlName="city" type="text" /></label>
-        <label><span>Judet</span><input formControlName="county" type="text" /></label>
-        <label><span>Cod postal</span><input formControlName="postalCode" type="text" /></label>
-      </div>
-    </section>
+      @if (loading()) {
+        <app-admin-loading-state message="Se incarca datele logistice..." />
+      } @else {
+        <div class="admin-form-grid">
+          <app-admin-form-field label="Nume depozit"><input appAdminInput formControlName="warehouseName" type="text" /></app-admin-form-field>
+          <app-admin-form-field label="Oras"><input appAdminInput formControlName="city" type="text" /></app-admin-form-field>
+          <app-admin-form-field label="Judet"><input appAdminInput formControlName="county" type="text" /></app-admin-form-field>
+          <app-admin-form-field label="Cod postal"><input appAdminInput formControlName="postalCode" type="text" /></app-admin-form-field>
+        </div>
+      }
+    </app-admin-card>
 
-    <section class="admin-card admin-card--wide">
+    <app-admin-card class="admin-card--wide">
       <h2>Zone livrare</h2>
-      <div class="admin-zones">
-        <div class="admin-zone">
-          <label class="admin-toggle"><input formControlName="zoneNorth" type="checkbox" /><span>Nord</span></label>
-          <label><span>ETA zile</span><input formControlName="zoneNorthEta" type="number" min="1" /></label>
-          <label><span>Suprataxa</span><input formControlName="zoneNorthModifier" type="number" min="0" /></label>
+      @if (loading()) {
+        <app-admin-loading-state message="Se incarca zonele de livrare..." />
+      } @else {
+        <div class="admin-zones">
+          <div class="admin-zone">
+            <label class="admin-toggle"><input formControlName="zoneNorth" type="checkbox" /><span>Nord</span></label>
+            <app-admin-form-field label="ETA zile"><input appAdminInput formControlName="zoneNorthEta" type="number" min="1" /></app-admin-form-field>
+            <app-admin-form-field label="Suprataxa"><input appAdminInput formControlName="zoneNorthModifier" type="number" min="0" /></app-admin-form-field>
+          </div>
+          <div class="admin-zone">
+            <label class="admin-toggle"><input formControlName="zoneSouth" type="checkbox" /><span>Sud</span></label>
+            <app-admin-form-field label="ETA zile"><input appAdminInput formControlName="zoneSouthEta" type="number" min="1" /></app-admin-form-field>
+            <app-admin-form-field label="Suprataxa"><input appAdminInput formControlName="zoneSouthModifier" type="number" min="0" /></app-admin-form-field>
+          </div>
+          <div class="admin-zone">
+            <label class="admin-toggle"><input formControlName="zoneEast" type="checkbox" /><span>Est</span></label>
+            <app-admin-form-field label="ETA zile"><input appAdminInput formControlName="zoneEastEta" type="number" min="1" /></app-admin-form-field>
+            <app-admin-form-field label="Suprataxa"><input appAdminInput formControlName="zoneEastModifier" type="number" min="0" /></app-admin-form-field>
+          </div>
+          <div class="admin-zone">
+            <label class="admin-toggle"><input formControlName="zoneWest" type="checkbox" /><span>Vest</span></label>
+            <app-admin-form-field label="ETA zile"><input appAdminInput formControlName="zoneWestEta" type="number" min="1" /></app-admin-form-field>
+            <app-admin-form-field label="Suprataxa"><input appAdminInput formControlName="zoneWestModifier" type="number" min="0" /></app-admin-form-field>
+          </div>
         </div>
-        <div class="admin-zone">
-          <label class="admin-toggle"><input formControlName="zoneSouth" type="checkbox" /><span>Sud</span></label>
-          <label><span>ETA zile</span><input formControlName="zoneSouthEta" type="number" min="1" /></label>
-          <label><span>Suprataxa</span><input formControlName="zoneSouthModifier" type="number" min="0" /></label>
-        </div>
-        <div class="admin-zone">
-          <label class="admin-toggle"><input formControlName="zoneEast" type="checkbox" /><span>Est</span></label>
-          <label><span>ETA zile</span><input formControlName="zoneEastEta" type="number" min="1" /></label>
-          <label><span>Suprataxa</span><input formControlName="zoneEastModifier" type="number" min="0" /></label>
-        </div>
-        <div class="admin-zone">
-          <label class="admin-toggle"><input formControlName="zoneWest" type="checkbox" /><span>Vest</span></label>
-          <label><span>ETA zile</span><input formControlName="zoneWestEta" type="number" min="1" /></label>
-          <label><span>Suprataxa</span><input formControlName="zoneWestModifier" type="number" min="0" /></label>
-        </div>
-      </div>
-    </section>
+      }
+    </app-admin-card>
   </div>
 </section>

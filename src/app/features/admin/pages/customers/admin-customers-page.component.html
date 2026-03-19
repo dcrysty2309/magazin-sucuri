@@ -1,100 +1,42 @@
 <section class="admin-page">
-  <div class="admin-page__header">
+  <app-admin-page-header
+    eyebrow="CRM"
+    title="Clienti"
+    description="Lista clientilor si valoarea cumulata a comenzilor lor."
+  />
+
+  <app-admin-action-bar>
     <div>
-      <p class="admin-page__eyebrow">CRM</p>
-      <h1>Clienti</h1>
-      <p>Gestioneaza clientii inregistrati, actualizeaza datele lor si sterge conturile care nu mai sunt necesare.</p>
+      <strong class="admin-customers__bar-title">Relatie clienti</strong>
+      <p class="admin-customers__bar-copy">
+        Vezi rapid cine comanda recurent, cat a cheltuit si intra in profil pentru istoricul complet.
+      </p>
     </div>
-    <button type="button" class="admin-page__cta" (click)="openCreate()">Adauga client</button>
-  </div>
+  </app-admin-action-bar>
 
-  @if (toastMessage()) {
-    <div class="admin-feedback admin-feedback--success">{{ toastMessage() }}</div>
-  }
-
-  <div class="admin-card">
+  <app-admin-card>
     @if (serverError()) {
       <p>{{ serverError() }}</p>
     } @else if (loading()) {
-      <p>Se incarca clientii...</p>
+      <app-admin-loading-state message="Se incarca lista de clienti..." />
     } @else if (!customers().length) {
-      <p>Nu exista clienti inregistrati inca.</p>
+      <app-admin-empty-state title="Nu exista clienti" description="Clientii vor aparea aici dupa primele comenzi sau conturi create." />
     } @else {
-      <div class="admin-list">
+      <app-admin-data-table>
         @for (customer of customers(); track customer.id) {
           <div class="admin-list__row">
             <div>
               <strong>{{ customer.name }}</strong>
               <p>{{ customer.email }}</p>
-              <p>{{ customer.phone }}</p>
             </div>
             <div>
-              <span>{{ customer.ordersCount }} comenzi</span>
+              <app-admin-badge tone="neutral">{{ customer.ordersCount }} comenzi</app-admin-badge>
               <strong>{{ customer.totalSpent }} Lei</strong>
             </div>
-            <div class="admin-list__actions">
-              <a [routerLink]="['/admin/clienti', customer.id]">Detalii</a>
-              <button type="button" (click)="openEdit(customer)">Editeaza</button>
-              <button type="button" class="is-danger" (click)="confirmDelete(customer)">Sterge</button>
-            </div>
+            <a [routerLink]="['/admin/clienti', customer.id]" class="admin-list__link">Detalii</a>
           </div>
         }
-      </div>
+      </app-admin-data-table>
     }
-  </div>
-
-  @if (editingCustomer()) {
-    <div class="admin-modal">
-      <div class="admin-modal__backdrop" (click)="closeModal()"></div>
-      <div class="admin-modal__dialog">
-        <p class="admin-page__eyebrow">{{ editingCustomer()?.id ? 'Actualizare' : 'Client nou' }}</p>
-        <h2>{{ editingCustomer()?.id ? 'Editeaza clientul' : 'Adauga un client' }}</h2>
-
-        <form class="admin-form" [formGroup]="customerForm" (ngSubmit)="saveCustomer()">
-          <label>
-            <span>Prenume</span>
-            <input type="text" formControlName="firstName" />
-          </label>
-          <label>
-            <span>Nume</span>
-            <input type="text" formControlName="lastName" />
-          </label>
-          <label>
-            <span>Email</span>
-            <input type="email" formControlName="email" />
-          </label>
-          <label>
-            <span>Telefon</span>
-            <input type="text" formControlName="phone" />
-          </label>
-          <label class="admin-form__full">
-            <span>Parola {{ editingCustomer()?.id ? '(optional pentru resetare)' : '' }}</span>
-            <input type="text" formControlName="password" />
-          </label>
-
-          <div class="admin-modal__actions">
-            <button type="button" (click)="closeModal()">Renunta</button>
-            <button type="submit" class="is-primary" [disabled]="saving()">{{ saving() ? 'Se salveaza...' : 'Salveaza' }}</button>
-          </div>
-        </form>
-      </div>
-    </div>
-  }
-
-  @if (deletingCustomer(); as customer) {
-    <div class="admin-modal">
-      <div class="admin-modal__backdrop" (click)="cancelDelete()"></div>
-      <div class="admin-modal__dialog">
-        <p class="admin-page__eyebrow">Confirmare</p>
-        <h2>Stergi clientul?</h2>
-        <p>{{ customer.name }} va fi eliminat din sistem. Comenzile existente raman inregistrate.</p>
-        <div class="admin-modal__actions">
-          <button type="button" (click)="cancelDelete()">Renunta</button>
-          <button type="button" class="is-danger" [disabled]="deletingCustomerId() === customer.id" (click)="deleteCustomer()">
-            {{ deletingCustomerId() === customer.id ? 'Se sterge...' : 'Sterge clientul' }}
-          </button>
-        </div>
-      </div>
-    </div>
-  }
+  </app-admin-card>
 </section>

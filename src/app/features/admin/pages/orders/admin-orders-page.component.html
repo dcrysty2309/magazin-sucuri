@@ -1,99 +1,55 @@
 <section class="admin-page">
-  <div class="admin-page__header">
+  <app-admin-page-header
+    eyebrow="Vanzari"
+    title="Comenzi"
+    description="Lista operationala pentru comenzi noi, pregatire, expediere si livrare."
+  />
+
+  <app-admin-action-bar>
     <div>
-      <p class="admin-page__eyebrow">Admin</p>
-      <h1>Comenzi</h1>
-      <p>Urmareste comenzile, schimba statusul operational si deschide detalii complete pentru fiecare comanda.</p>
+      <strong class="admin-orders__bar-title">Flux operational</strong>
+      <p class="admin-orders__bar-copy">Actualizeaza statusurile direct din lista sau deschide comanda pentru context complet.</p>
     </div>
-  </div>
+  </app-admin-action-bar>
 
-  @if (toastMessage()) {
-    <div class="admin-card"><p>{{ toastMessage() }}</p></div>
-  }
-
-  <div class="admin-card">
+  <app-admin-card>
     @if (serverError()) {
       <p>{{ serverError() }}</p>
     } @else if (loading()) {
-      <p>Se incarca comenzile...</p>
+      <app-admin-loading-state message="Se incarca comenzile..." />
     } @else if (!orders().length) {
-      <p>Nu exista comenzi inca.</p>
+      <app-admin-empty-state title="Nu exista comenzi" description="Primele comenzi apar aici imediat ce sunt plasate." />
     } @else {
-      <div class="admin-list">
+      <app-admin-data-table>
+        <div class="admin-orders__head">
+          <span>Comanda</span>
+          <span>Status</span>
+          <span>Total</span>
+          <span>Actiuni</span>
+        </div>
+
         @for (order of orders(); track order.id) {
-          <div class="admin-list__row">
-            <div>
+          <div class="admin-orders__row">
+            <div class="admin-orders__identity">
               <strong>{{ order.code }}</strong>
               <p>{{ order.customerName }} · {{ order.customerEmail }}</p>
             </div>
-            <div>
-              <span>{{ order.status }} / {{ order.paymentStatus }}</span>
+            <div class="admin-orders__status">
+              <app-admin-badge [tone]="statusTone(order.status)">{{ displayStatus(order.status) }}</app-admin-badge>
+              <span>{{ order.paymentStatus }}</span>
+            </div>
+            <div class="admin-orders__total">
               <strong>{{ order.total }} Lei</strong>
             </div>
-            <div class="admin-list__actions">
-              <button type="button" (click)="updateStatus(order, 'Noua')">Noua</button>
-              <button type="button" (click)="updateStatus(order, 'In procesare')">Procesare</button>
-              <button type="button" (click)="updateStatus(order, 'Livrata')">Livrata</button>
-              <button type="button" class="is-secondary" (click)="openDetails(order)">Detalii</button>
-              <button type="button" class="is-secondary" [disabled]="deletingOrderId() === order.id" (click)="deleteOrder(order)">
-                {{ deletingOrderId() === order.id ? 'Se sterge...' : 'Sterge' }}
-              </button>
+            <div class="admin-orders__actions">
+              @for (status of statuses; track status) {
+                <app-admin-button size="small" (click)="updateStatus(order, status)">{{ status }}</app-admin-button>
+              }
+              <a [routerLink]="['/admin/comenzi', order.id]" class="admin-orders__link">Detalii</a>
             </div>
           </div>
         }
-      </div>
+      </app-admin-data-table>
     }
-  </div>
-
-  @if (selectedOrder(); as order) {
-    <div class="admin-modal">
-      <div class="admin-modal__backdrop" (click)="closeDetails()"></div>
-      <div class="admin-modal__dialog">
-        <div class="admin-modal__header">
-          <div>
-            <p class="admin-page__eyebrow">Detalii comanda</p>
-            <h2>{{ order.code }}</h2>
-          </div>
-          <button type="button" class="is-secondary" (click)="closeDetails()">Inchide</button>
-        </div>
-
-        <div class="admin-modal__grid">
-          <section>
-            <h3>Client</h3>
-            <p>{{ order.customerName }}</p>
-            <p>{{ order.customerEmail }}</p>
-            <p>{{ order.customerPhone }}</p>
-          </section>
-          <section>
-            <h3>Adresa</h3>
-            @if (order.address) {
-              <p>{{ order.address.line1 }}</p>
-              <p>{{ order.address.city }}, {{ order.address.county }}</p>
-              <p>{{ order.address.postalCode }}</p>
-            } @else {
-              <p>Adresa nu este disponibila.</p>
-            }
-          </section>
-        </div>
-
-        <section class="admin-modal__section">
-          <h3>Produse</h3>
-          <div class="admin-items">
-            @for (item of order.items; track item.productName + item.variantLabel) {
-              <div class="admin-items__row">
-                <div>
-                  <strong>{{ item.productName }}</strong>
-                  <p>{{ item.variantLabel }}</p>
-                </div>
-                <div>
-                  <span>{{ item.quantity }} x {{ item.unitPrice }} Lei</span>
-                  <strong>{{ item.lineTotal }} Lei</strong>
-                </div>
-              </div>
-            }
-          </div>
-        </section>
-      </div>
-    </div>
-  }
+  </app-admin-card>
 </section>

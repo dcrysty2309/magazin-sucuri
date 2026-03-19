@@ -1,0 +1,22 @@
+.admin-action-bar {
+  padding: 16px 18px;
+  border: 1px solid var(--admin-color-border);
+  border-radius: var(--admin-radius-lg);
+  background: var(--admin-color-surface);
+  box-shadow: var(--admin-shadow-sm);
+}
+
+.admin-action-bar__content {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+@media (max-width: 720px) {
+  .admin-action-bar__content {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+}

@@ -12,32 +12,21 @@ import { AuthService } from '../../core/services/auth.service';
 })
 export class AdminLayoutComponent {
   readonly auth = inject(AuthService);
-  readonly sidebarCollapsed = signal(false);
   readonly mobileMenuOpen = signal(false);
 
   readonly navigation = [
-    { label: 'Dashboard', route: '/admin/dashboard', tag: 'overview', icon: 'dashboard' },
-    { label: 'Produse', route: '/admin/produse', tag: 'catalog', icon: 'products' },
-    { label: 'Comenzi', route: '/admin/comenzi', tag: 'sales', icon: 'orders' },
-    { label: 'Clienti', route: '/admin/clienti', tag: 'crm', icon: 'customers' },
-    { label: 'Livrare', route: '/admin/livrare', tag: 'ops', icon: 'shipping' },
-    { label: 'Plati', route: '/admin/plati', tag: 'ops', icon: 'payments' },
-    { label: 'Setari', route: '/admin/setari', tag: 'config', icon: 'settings' },
-    { label: 'Analytics', route: '/admin/analytics', tag: 'data', icon: 'analytics' },
-  ];
-  readonly secondaryNavigation = [
-    { label: 'Categorii', route: '/admin/categorii', icon: 'categories' },
+    { label: 'Dashboard', route: '/admin/dashboard', icon: 'dashboard' },
+    { label: 'Comenzi', route: '/admin/comenzi', icon: 'orders' },
+    { label: 'Produse', route: '/admin/produse', icon: 'products' },
     { label: 'Stoc', route: '/admin/stoc', icon: 'inventory' },
-    { label: 'Promotii', route: '/admin/promotii', icon: 'promotions' },
+    { label: 'Livrare', route: '/admin/livrare', icon: 'shipping' },
+    { label: 'Clienti', route: '/admin/clienti', icon: 'customers' },
+    { label: 'Plata', route: '/admin/plati', icon: 'payments' },
   ];
   readonly displayName = computed(() => this.auth.displayName() || 'Administrator');
 
   async logout(): Promise<void> {
     await this.auth.logout();
-  }
-
-  toggleSidebar(): void {
-    this.sidebarCollapsed.update((value) => !value);
   }
 
   toggleMobileMenu(): void {

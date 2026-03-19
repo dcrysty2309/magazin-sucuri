@@ -1,0 +1,199 @@
+:root {
+  --admin-font-body: 'Plus Jakarta Sans', Inter, sans-serif;
+  --admin-font-mono: 'Spline Sans Mono', ui-monospace, monospace;
+  --admin-space-1: 8px;
+  --admin-space-2: 16px;
+  --admin-space-3: 24px;
+  --admin-space-4: 32px;
+  --admin-radius-sm: 10px;
+  --admin-radius-md: 16px;
+  --admin-radius-lg: 20px;
+  --admin-color-bg: #f5f7fb;
+  --admin-color-surface: #ffffff;
+  --admin-color-surface-muted: #f8faff;
+  --admin-color-surface-elevated: #f3f6fd;
+  --admin-color-border: #e5e7ef;
+  --admin-color-border-strong: #d7dceb;
+  --admin-color-text: #111827;
+  --admin-color-text-muted: #6b7280;
+  --admin-color-primary: #2563eb;
+  --admin-color-primary-strong: #1d4ed8;
+  --admin-color-primary-soft: #e8f0ff;
+  --admin-color-primary-soft-strong: #dbe7ff;
+  --admin-color-success: #059669;
+  --admin-color-success-soft: #dcfce7;
+  --admin-color-warning: #d97706;
+  --admin-color-warning-soft: #fef3c7;
+  --admin-color-danger: #dc2626;
+  --admin-color-danger-soft: #fee2e2;
+  --admin-shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.05);
+  --admin-shadow-md: 0 12px 32px rgba(15, 23, 42, 0.08);
+}
+
+.admin-page {
+  display: grid;
+  gap: var(--admin-space-3);
+  font-family: var(--admin-font-body);
+}
+
+.admin-layout,
+.admin-login,
+.admin-dialog {
+  --color-background: var(--admin-color-bg);
+  --color-surface: var(--admin-color-surface);
+  --color-surface-soft: var(--admin-color-surface-muted);
+  --color-surface-strong: var(--admin-color-surface-elevated);
+  --color-heading: var(--admin-color-text);
+  --color-text: var(--admin-color-text);
+  --color-text-muted: var(--admin-color-text-muted);
+  --color-accent: var(--admin-color-primary);
+  --color-accent-hover: var(--admin-color-primary-strong);
+  --color-border: var(--admin-color-border);
+  --color-border-strong: var(--admin-color-border-strong);
+  --font-body: var(--admin-font-body);
+  --font-display: var(--admin-font-body);
+  --font-ui: var(--admin-font-body);
+}
+
+.admin-layout,
+.admin-layout *,
+.admin-dialog,
+.admin-dialog * {
+  font-family: var(--admin-font-body);
+}
+
+.admin-layout h1,
+.admin-layout h2,
+.admin-layout h3,
+.admin-layout h4,
+.admin-layout h5,
+.admin-layout h6,
+.admin-dialog h1,
+.admin-dialog h2,
+.admin-dialog h3,
+.admin-dialog h4,
+.admin-dialog h5,
+.admin-dialog h6 {
+  font-family: var(--admin-font-body);
+}
+
+.admin-page__eyebrow {
+  margin: 0 0 4px;
+  color: var(--admin-color-text-muted);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.admin-page__title,
+.admin-card__title {
+  margin: 0;
+  color: var(--admin-color-text);
+  font-size: clamp(1.5rem, 2vw, 2rem);
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+}
+
+.admin-page__description,
+.admin-card__description {
+  margin: 0;
+  color: var(--admin-color-text-muted);
+  line-height: 1.6;
+}
+
+.admin-card {
+  background: var(--admin-color-surface);
+  border: 1px solid var(--admin-color-border);
+  border-radius: var(--admin-radius-lg);
+  box-shadow: var(--admin-shadow-sm);
+}
+
+.admin-ui-input,
+.admin-ui-select {
+  width: 100%;
+  min-height: 44px;
+  padding: 0 14px;
+  border: 1px solid var(--admin-color-border);
+  border-radius: 12px;
+  background: var(--admin-color-surface-muted);
+  color: var(--admin-color-text);
+  font: inherit;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+}
+
+.admin-ui-input::placeholder,
+.admin-ui-textarea::placeholder {
+  color: #9ca3af;
+}
+
+.admin-ui-textarea {
+  width: 100%;
+  min-height: 160px;
+  padding: 14px;
+  border: 1px solid var(--admin-color-border);
+  border-radius: 12px;
+  background: var(--admin-color-surface-muted);
+  color: var(--admin-color-text);
+  font: inherit;
+  resize: vertical;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+}
+
+.admin-ui-input:focus,
+.admin-ui-select:focus,
+.admin-ui-textarea:focus {
+  outline: 0;
+  border-color: var(--admin-color-primary);
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
+  background: var(--admin-color-surface);
+}
+
+.admin-page input[type='checkbox'] {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  appearance: none;
+  border: 1.5px solid #c7cfdd;
+  border-radius: 6px;
+  background: #fff;
+  display: inline-grid;
+  place-items: center;
+  cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.admin-page input[type='checkbox']::after {
+  content: '';
+  width: 9px;
+  height: 9px;
+  border-radius: 2px;
+  transform: scale(0);
+  transition: transform 0.18s ease;
+  background: #fff;
+}
+
+.admin-page input[type='checkbox']:checked {
+  border-color: var(--admin-color-primary);
+  background: var(--admin-color-primary);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+.admin-page input[type='checkbox']:checked::after {
+  transform: scale(1);
+}
+
+.admin-material-icon {
+  font-family: 'Material Symbols Rounded';
+  font-weight: 400;
+  font-style: normal;
+  font-size: 20px;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-smoothing: antialiased;
+}

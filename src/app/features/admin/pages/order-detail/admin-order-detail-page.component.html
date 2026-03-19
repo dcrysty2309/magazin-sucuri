@@ -1,0 +1,107 @@
+<section class="admin-page">
+  <app-admin-page-header
+    eyebrow="Comenzi"
+    [title]="order()?.code || 'Detaliu comanda'"
+    description="Vizualizare completa pentru status, client, produse si livrare."
+  >
+    <a page-actions routerLink="/admin/comenzi" class="admin-order-detail__back">Inapoi la comenzi</a>
+  </app-admin-page-header>
+
+  @if (serverError()) {
+    <app-admin-card><p>{{ serverError() }}</p></app-admin-card>
+  } @else if (loading()) {
+    <app-admin-card>
+      <app-admin-loading-state message="Se incarca detaliile comenzii..." />
+    </app-admin-card>
+  } @else if (!order()) {
+    <app-admin-empty-state title="Comanda nu exista" description="Comanda cautata nu a fost gasita." />
+  } @else {
+    @if (order(); as currentOrder) {
+      <app-admin-action-bar>
+        <div>
+          <strong class="admin-order-detail__bar-title">Control rapid</strong>
+          <p class="admin-order-detail__bar-copy">
+            Actualizeaza statusul, verifica datele clientului si confirma rapid continutul comenzii.
+          </p>
+        </div>
+      </app-admin-action-bar>
+
+      <div class="admin-order-detail__summary">
+        <app-admin-card [compact]="true">
+          <span class="admin-order-detail__label">Status</span>
+          <app-admin-badge [tone]="statusTone(currentOrder.status)">{{ displayStatus(currentOrder.status) }}</app-admin-badge>
+        </app-admin-card>
+        <app-admin-card [compact]="true">
+          <span class="admin-order-detail__label">Plata</span>
+          <strong>{{ currentOrder.paymentStatus }}</strong>
+        </app-admin-card>
+        <app-admin-card [compact]="true">
+          <span class="admin-order-detail__label">Total</span>
+          <strong>{{ currentOrder.total }} Lei</strong>
+        </app-admin-card>
+        <app-admin-card [compact]="true">
+          <span class="admin-order-detail__label">Data</span>
+          <strong>{{ currentOrder.createdAt | date:'mediumDate' }}</strong>
+        </app-admin-card>
+      </div>
+
+      <app-admin-card>
+        <div class="admin-order-detail__actions">
+          <strong>Actualizare status</strong>
+          <div class="admin-order-detail__action-list">
+            @for (status of statuses; track status) {
+              <app-admin-button [disabled]="saving()" (click)="updateStatus(status)">{{ status }}</app-admin-button>
+            }
+          </div>
+        </div>
+      </app-admin-card>
+
+      <div class="admin-order-detail__grid">
+        <app-admin-card>
+          <h2 class="admin-order-detail__section-title">Client</h2>
+          <div class="admin-order-detail__stack">
+            <p><strong>{{ currentOrder.customerName }}</strong></p>
+            <p>{{ currentOrder.customerEmail }}</p>
+            <p>{{ currentOrder.customerPhone }}</p>
+          </div>
+        </app-admin-card>
+
+        <app-admin-card>
+          <h2 class="admin-order-detail__section-title">Livrare</h2>
+          @if (currentOrder.address) {
+            <div class="admin-order-detail__stack">
+              <p>{{ currentOrder.address.line1 }}</p>
+              <p>{{ currentOrder.address.city }}, {{ currentOrder.address.county }}</p>
+              <p>{{ currentOrder.address.postalCode }}</p>
+            </div>
+          } @else {
+            <app-admin-empty-state title="Fara adresa" description="Comanda nu are o adresa de livrare disponibila." />
+          }
+        </app-admin-card>
+      </div>
+
+      <app-admin-card>
+        <h2 class="admin-order-detail__section-title">Produse comandate</h2>
+
+        @if (!currentOrder.items.length) {
+          <app-admin-empty-state title="Fara produse" description="Comanda nu are linii de produs disponibile." />
+        } @else {
+          <div class="admin-order-detail__items">
+            @for (item of currentOrder.items; track item.productName + item.variantLabel) {
+              <div class="admin-order-detail__item">
+                <div>
+                  <strong>{{ item.productName }}</strong>
+                  <p>{{ item.variantLabel }}</p>
+                </div>
+                <div class="admin-order-detail__item-meta">
+                  <span>{{ item.quantity }} x {{ item.unitPrice }} Lei</span>
+                  <strong>{{ item.lineTotal }} Lei</strong>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </app-admin-card>
+    }
+  }
+</section>

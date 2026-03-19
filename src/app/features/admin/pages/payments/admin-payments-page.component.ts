@@ -1,18 +1,32 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 
-import { AdminService } from '../../../../core/services/admin.service';
+import { AdminActionBarComponent } from '../../../../shared/admin-ui/action-bar/admin-action-bar.component';
+import { AdminBadgeComponent } from '../../../../shared/admin-ui/badge/admin-badge.component';
+import { AdminButtonComponent } from '../../../../shared/admin-ui/button/admin-button.component';
+import { AdminCardComponent } from '../../../../shared/admin-ui/card/admin-card.component';
+import { AdminLoadingStateComponent } from '../../../../shared/admin-ui/loading-state/admin-loading-state.component';
+import { AdminPageHeaderComponent } from '../../../../shared/admin-ui/page-header/admin-page-header.component';
+import { AdminPaymentsService } from '../../services/admin-payments.service';
 
 @Component({
   selector: 'app-admin-payments-page',
   standalone: true,
-  imports: [ReactiveFormsModule],
+  imports: [
+    ReactiveFormsModule,
+    AdminActionBarComponent,
+    AdminBadgeComponent,
+    AdminButtonComponent,
+    AdminCardComponent,
+    AdminLoadingStateComponent,
+    AdminPageHeaderComponent,
+  ],
   templateUrl: './admin-payments-page.component.html',
   styleUrl: './admin-payments-page.component.scss',
 })
 export class AdminPaymentsPageComponent {
   private readonly fb = inject(FormBuilder);
-  private readonly adminService = inject(AdminService);
+  private readonly paymentsService = inject(AdminPaymentsService);
 
   readonly loading = signal(true);
   readonly saving = signal(false);
@@ -35,7 +49,7 @@ export class AdminPaymentsPageComponent {
   async load(): Promise<void> {
     this.loading.set(true);
     try {
-      const settings = await this.adminService.getPaymentsSettings();
+      const settings = await this.paymentsService.getSettings();
       this.form.patchValue(settings.payments);
       this.initialSnapshot.set(JSON.stringify(this.form.getRawValue()));
     } catch {
@@ -56,7 +70,7 @@ export class AdminPaymentsPageComponent {
     this.serverError.set('');
 
     try {
-      await this.adminService.updatePaymentsSettings({ payments: values });
+      await this.paymentsService.updateSettings({ payments: values });
       this.initialSnapshot.set(JSON.stringify(values));
       this.toastMessage.set('Configurarile de plata au fost salvate.');
     } catch {
